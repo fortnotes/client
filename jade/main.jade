@@ -1,7 +1,7 @@
 doctype html
 html
 	head
-		title FortNotes Web Client
+		title=title
 
 		meta(charset='utf-8')
 		meta(name='keywords', content='security online password manager AES RSA encryption')
@@ -14,9 +14,9 @@ html
 	body
 		include mixins
 
-		include page.auth
-		include page.list
-		include page.edit
-		include page.menu
+		include page.auth.jade
+		include page.list.jade
+		include page.edit.jade
+		include page.menu.jade
 
 		script(type='text/javascript', src='app.js', async='async')
