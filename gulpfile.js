@@ -7,55 +7,22 @@
 
 'use strict';
 
-var gulp    = require('gulp'),
-	apidoc  = require('gulp-apidoc'),
-	plumber = require('gulp-plumber'),
-	eslint  = require('gulp-eslint'),
-	nodemon = require('gulp-nodemon'),
-	mocha   = require('gulp-mocha');
+var gulp = require('gulp');
 
+// enable colors in console
+require('tty-colors');
 
-gulp.task('lint', function () {
-	return gulp
-		.src([
-			//'./client/app/js/**/*.js',
-			'./client/config/**/*.js',
-			'./server/**/*.js'
-		])
-		.pipe(plumber())
-		.pipe(eslint())
-		.pipe(eslint.format());
-});
-
-
-// build REST documentation
-gulp.task('apidoc', function () {
-	apidoc.exec({
-		src: './server/',
-		dest: './doc/api/',
-		debug: false
-	});
-});
-
-
-// serve API requests
-gulp.task('serve', function () {
-	nodemon({
-		script: './server/main.js',
-		watch: ['./server/'],
-		ext: 'js'
-	});
-});
-
-
-// unit tests
-gulp.task('tests', function () {
-	return gulp.src('./server/tests/*.js', {read: false})
-		.pipe(mocha({reporter: 'spec'}));
-});
+// load tasks
+require('./tasks/img');
+require('./tasks/jade');
+//require('./tasks/less');
+require('./tasks/lint');
+//require('./tasks/serve');
+require('./tasks/static');
+require('./tasks/webpack');
 
 
 // entry point
-gulp.task('default', ['serve'], function () {
-	gulp.watch(['./server/**/*.js'], ['apidoc']);
+gulp.task('default', [], function () {
+	//gulp.watch(['./server/**/*.js'], ['apidoc']);
 });

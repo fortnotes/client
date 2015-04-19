@@ -35,12 +35,12 @@ gulp.task('jade:develop', function () {
 		.pipe(jade({
 			pretty: '\t',
 			locals: {
-				debug:   true,
+				develop: true,
 				title:   'FortNotes Web Client (development build)',
 				version: pkgInfo.version
 			}
 		}))
-		.pipe(rename('debug.html'))
+		.pipe(rename('develop.html'))
 		.pipe(gulp.dest('./build/'));
 });
 
@@ -52,7 +52,7 @@ gulp.task('jade:release', function () {
 		.pipe(jade({
 			pretty: '\t',
 			locals: {
-				debug:   false,
+				develop: false,
 				title:   'FortNotes Web Client',
 				version: pkgInfo.version
 			}

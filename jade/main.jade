@@ -19,4 +19,7 @@ html
 		include page.edit.jade
 		include page.menu.jade
 
-		script(type='text/javascript', src='app.js', async='async')
+		if develop
+			script(type='text/javascript', src='js/develop.js', async='async')
+		else
+			script(type='text/javascript', src='js/release.js', async='async')
