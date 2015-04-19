@@ -9,20 +9,17 @@
 
 var path   = require('path'),
 	gulp   = require('gulp'),
-	glr    = require('gulp-livereload'),
 	log    = require('./utils').log,
 	title  = 'static  '.inverse,
 	config = {
 		active: true,
 		logging: true,
-		livereload: true,
 		port: 8080
 	};
 
 
 gulp.task('static', function ( done ) {
-	var //config = require(path.join(process.env.CWD, 'config', 'static')),
-		files, msInit;
+	var files, msInit;
 
 	if ( config.active ) {
 		// rfc 2616 compliant HTTP static file server
@@ -58,24 +55,16 @@ gulp.task('static', function ( done ) {
 			}).resume();
 		}).listen(config.port).on('listening', function eventListenerListening () {
 			var ip   = require('ip').address(),
-				msg  = 'Serve directory ' + path.join(__dirname, '..', 'build') + ' at ' + 'http://' + ip + ':' + config.port + '/',
+				msg  = 'Serve build directory ' + path.join(__dirname, '..', 'build'),
 				hash = new Array(msg.length + 1).join('#');
 
 			log(title, hash);
-			log(title, msg.green);
+			log(title, msg.bold);
+			log(title, 'release: ' + ('http://' + ip + ':' + config.port + '/').green);
+			log(title, 'develop: ' + ('http://' + ip + ':' + config.port + '/develop.html').green);
 			log(title, hash);
+
+			done();
 		});
-
-		if ( config.livereload ) {
-			glr.listen({quiet: true});
-
-			// reload
-			gulp.watch(['./build/**/*.{html,js,css}']).on('change', function ( file ) {
-				// report
-				log('watch   '.bgCyan.black, 'reload ' + ('./' + path.relative(path.join(__dirname, '..'), file.path)).bold);
-				// reload
-				glr.changed(file);
-			});
-		}
 	}
 });

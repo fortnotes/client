@@ -7,7 +7,11 @@
 
 'use strict';
 
-var gulp = require('gulp');
+var path = require('path'),
+	gulp = require('gulp'),
+	glr  = require('gulp-livereload'),
+	log  = require('./tasks/utils').log;
+
 
 // enable colors in console
 require('tty-colors');
@@ -23,6 +27,17 @@ require('./tasks/webpack');
 
 
 // entry point
-gulp.task('default', [], function () {
+gulp.task('default', ['lint', 'img', 'jade', 'webpack', 'static'], function () {
 	//gulp.watch(['./server/**/*.js'], ['apidoc']);
+
+	// serve livereload
+	glr.listen({quiet: true});
+
+	// reload event
+	gulp.watch(['./build/**/*.{html,js,css}']).on('change', function ( file ) {
+		// report
+		log('watch   '.bgCyan.black, 'reload ' + ('./' + path.relative(path.join(__dirname, '..'), file.path)).bold);
+		// reload
+		glr.changed(file);
+	});
 });
