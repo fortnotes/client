@@ -9,16 +9,22 @@
 
 var gulp    = require('gulp'),
 	plumber = require('gulp-plumber'),
-	eslint  = require('gulp-eslint');
+	eslint  = require('gulp-eslint'),
+	log     = require('./utils').log;
 
 
 gulp.task('lint', function () {
 	return gulp
 		.src([
-			'./js/**/*.js',
+			//'./js/**/*.js',
 			'./tasks/**/*.js'
 		])
 		.pipe(plumber())
 		.pipe(eslint())
-		.pipe(eslint.format());
+		.pipe(eslint.format('stylish', function ( result ) {
+			// make nice output
+			result.split('\n').forEach(function ( line ) {
+				log('eslint  '.bgRed, line + ''.reset);
+			});
+		}));
 });
