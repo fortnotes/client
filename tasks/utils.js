@@ -35,7 +35,7 @@ function log () {
  */
 function webpack ( err, stats ) {
 	var json  = stats.toJson({source:false}),
-		title = 'webpack '.inverse;
+		title = 'webpack '.black.bgYellow;
 
 	if ( err ) {
 		log(title, 'FATAL ERROR'.red, err);

@@ -19,16 +19,18 @@ require('tty-colors');
 // load tasks
 require('./tasks/img');
 require('./tasks/jade');
-//require('./tasks/less');
+require('./tasks/less');
 require('./tasks/lint');
-//require('./tasks/serve');
 require('./tasks/static');
 require('./tasks/webpack');
 
 
-// entry point
-gulp.task('default', ['lint', 'img', 'jade', 'webpack', 'static'], function () {
-	//gulp.watch(['./server/**/*.js'], ['apidoc']);
+// main entry point
+gulp.task('default', ['lint', 'img', 'jade', 'less', 'webpack', 'static'], function () {
+	// rebuild files on modification
+	gulp.watch(['./js/**/*.js'], ['webpack:develop']);
+	gulp.watch(['./jade/**/*.jade'], ['jade:develop']);
+	gulp.watch(['./less/**/*.less'], ['less:develop']);
 
 	// serve livereload
 	glr.listen({quiet: true});

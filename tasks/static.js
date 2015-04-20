@@ -12,9 +12,9 @@ var path   = require('path'),
 	log    = require('./utils').log,
 	title  = 'static  '.inverse,
 	config = {
-		active: true,
+		active:  true,
 		logging: true,
-		port: 8080
+		port:    8080
 	};
 
 
@@ -56,7 +56,7 @@ gulp.task('static', function ( done ) {
 		}).listen(config.port).on('listening', function eventListenerListening () {
 			var ip   = require('ip').address(),
 				msg  = 'Serve build directory ' + path.join(__dirname, '..', 'build'),
-				hash = new Array(msg.length + 1).join('#');
+				hash = new Array(msg.length + 1).join('-');
 
 			log(title, hash);
 			log(title, msg.bold);
