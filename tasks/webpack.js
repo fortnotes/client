@@ -42,7 +42,7 @@ gulp.task('webpack:develop', function () {
 			},
 			resolve: {
 				root: './app/js/',
-				extensions:['', '.js'],
+				extensions:['', '.js']
 				//alias: {
 				//	stb: process.env.STB + '/app/js',
 				//	app: process.env.CWD + '/app/js',
@@ -88,7 +88,7 @@ gulp.task('webpack:release', function () {
 				filename: 'release.js'
 			},
 			resolve: {
-				extensions:['', '.js'],
+				extensions:['', '.js']
 				//alias: {
 				//	stb: process.env.STB + '/app/js',
 				//	app: process.env.CWD + '/app/js',
