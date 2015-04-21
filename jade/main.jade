@@ -15,12 +15,10 @@ html
 		else
 			link(rel='stylesheet', type='text/css', href='css/release.css')
 	body
-		include mixins
-
-		include page.auth.jade
-		include page.list.jade
-		include page.edit.jade
-		include page.menu.jade
+		include pages/auth
+		include pages/list
+		include pages/edit
+		include pages/menu
 
 		if develop
 			script(type='text/javascript', src='js/develop.js', async='async')
