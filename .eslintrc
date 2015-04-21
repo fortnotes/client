@@ -4,7 +4,9 @@
 		"node": true
 	},
 
-	"globals": {},
+	"globals": {
+		"DEBUG": false
+	},
 
 	"rules": {
 		"comma-dangle": [2, "never"],
