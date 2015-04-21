@@ -1,154 +1,166 @@
 /**
- * DOM manipulation module.
- *
- * @namespace
  * @author DarkPark
  * @license GNU GENERAL PUBLIC LICENSE Version 3
  */
 
 'use strict';
 
-// declarations
+/**
+ * DOM manipulation module
+ */
 var dom = {};
 
 
-//TODO: should accept not only {Node}
-
-
 /**
- * Removes all child elements from the given HTML element
- * @param {Node} tag element to be cleared
- * @return {Node} empty HTML tag
+ * Create a new HTML element.
+ *
+ * @param {string} tagName mandatory tag name
+ * @param {Object|null} [attrList] element attributes
+ * @param {...*} [content] element content (primitive value/values or other nodes)
+ * @return {Node|null} HTML element or null on failure
+ *
  * @example
- *		TODO: add
- */
-dom.clear = function ( tag ) {
-	// valid non-empty tag
-	if ( tag instanceof Node ) {
-		while ( tag.firstChild ) {
-			// clear till has some
-			tag.removeChild(tag.firstChild);
-		}
-	}
-	return tag;
-};
-
-
-/**
- * Removes the given HTML element from the DOM
- * @param {Node} tag element to be removed
- * @example
- *		TODO: add
- */
-dom.remove = function ( tag ) {
-	// valid non-empty tag
-	if ( tag instanceof Node && tag.parentNode instanceof Node ) {
-		// clear till has some
-		tag.parentNode.removeChild(tag);
-	}
-};
-
-
-/**
- * Creates a new HTML element
- * @param {String} tagName mandatory tag name
- * @param {Object} [attrList] element attributes (empty object if none)
- * @param {...String|...Number|...Node} [content] element content (should not be empty)
- * @return {Node} HTML tag
- * @example
- *		TODO: add
+ * dom.tag('table');
+ * dom.tag('div', {}, 'some text');
+ * dom.tag('div', {className:'top'}, dom.tag('span'), dom.tag('br'));
+ * dom.tag('link', {rel:'stylesheet', type:'text/css', href:'http://some.url/'});
  */
 dom.tag = function ( tagName, attrList, content ) {
-	// prepare
-	var index,
-	// attribute names as array
-		attrKeys = typeof attrList === 'object' ? Object.keys(attrList) : [],
-		newNode  = null;  // Element placeholder
+	var node = null,
+		i, name;
+
 	// minimal param is given
 	if ( tagName ) {
 		// empty element
-		newNode = document.createElement(tagName);
+		node = document.createElement(tagName);
 
-		// attributes
-		for ( index = 0; index < attrKeys.length; index++ ) {
-			// extend a new node with the given attributes
-			newNode[attrKeys[index]] = attrList[attrKeys[index]];
+		// optional attribute list is given
+		if ( attrList && typeof attrList === 'object' ) {
+			for ( name in attrList ) {
+				// extend a new node with the given attributes
+				node[name] = attrList[name];
+			}
 		}
 
 		// content (arguments except the first two)
-		for ( index = 2; index < arguments.length; index++ ) {
+		for ( i = 2; i < arguments.length; i++ ) {
 			// some data is given
-			if ( arguments[index] ) {
+			if ( arguments[i] ) {
 				// regular HTML tag or plain data
-				newNode.appendChild(arguments[index] instanceof Node ? arguments[index] : document.createTextNode(arguments[index]));
+				node.appendChild(
+					typeof arguments[i] === 'object' ?
+						arguments[i] :
+						document.createTextNode(arguments[i])
+				);
 			}
 		}
 
 	}
-	// element or null on failure
-	return newNode;
+
+	return node;
 };
 
 
 /**
- * Creates a new DocumentFragment filled with the given non-empty elements if any.
- * @param {...String|...Number|...Node} [content] element list to add
+ * Create a new DocumentFragment filled with the given non-empty elements if any.
+ *
+ * @param {...*} [node] fragment content (primitive value/values or other nodes)
  * @return {DocumentFragment} new placeholder
+ *
  * @example
- *		// gives an empty fragment element
- *		fragment();
- *		// gives a fragment element with 3 div element inside
- *		fragment(div1, div2, div3);
- *		// mixed case
- *		fragment('some text', 123, div3);
+ * // gives an empty fragment element
+ * dom.fragment();
+ * // gives a fragment element with 3 div element inside
+ * dom.fragment(dom.tag('div'), div2, div3);
+ * // mixed case
+ * dom.fragment('some text', 123, div3);
  */
-dom.fragment = function ( content ) {
+dom.fragment = function ( node ) {
 	// prepare placeholder
-	var index, fragment = document.createDocumentFragment();
+	var i, fragment = document.createDocumentFragment();
+
 	// walk through all the given elements
-	for ( index = 0; index < arguments.length; index++ ) {
+	for ( i = 0; i < arguments.length; i++ ) {
+		node = arguments[i];
 		// some data is given
-		if ( arguments[index] ) {
+		if ( node ) {
 			// regular HTML tag or plain data
-			fragment.appendChild(arguments[index] instanceof Node ? arguments[index] : document.createTextNode(arguments[index]));
+			fragment.appendChild(typeof node === 'object' ? node : document.createTextNode(node));
 		}
 	}
+
 	return fragment;
 };
 
 
 /**
- * Adds the given non-empty data (HTML element/text or list) to the destination element
+ * Add the given non-empty data (HTML element/text or list) to the destination element.
+ *
  * @param {Node} tagDst element to receive children
- * @param {...String|...Number|...Node} [content] element list to add
- * @return {Node} the destination element - owner of all added data
+ * @param {...*} [content] element content (primitive value/values or other nodes)
+ * @return {Node|null} the destination element - owner of all added data
+ *
  * @example
- *		// simple text value
- *		add(some_div, 'Hello world');
- *		// single DOM Element
- *		add(some_div, some_other_div);
- *		// DOM Element list
- *		add(some_div, div1, div2, div3);
- *		// mixed case
- *		add(some_div, div1, 'hello', 'world');
+ * // simple text value
+ * add(some_div, 'Hello world');
+ * // single DOM Element
+ * add(some_div, some_other_div);
+ * // DOM Element list
+ * add(some_div, div1, div2, div3);
+ * // mixed case
+ * add(some_div, div1, 'hello', 'world');
  */
 dom.add = function ( tagDst, content ) {
-	// prepare
-	var index;
+	var i;
+
 	// valid HTML tag as the destination
 	if ( tagDst instanceof Node ) {
 		// append all except the first one
-		for ( index = 1; index < arguments.length; index++ ) {
+		for ( i = 1; i < arguments.length; i++ ) {
 			// some data is given
-			if ( arguments[index] ) {
+			if ( arguments[i] ) {
 				// regular HTML tag or plain data
-				tagDst.appendChild(arguments[index] instanceof Node ? arguments[index] : document.createTextNode(arguments[index]));
+				tagDst.appendChild(
+					typeof arguments[i] === 'object' ?
+						arguments[i] :
+						document.createTextNode(arguments[i])
+				);
 			}
 		}
+		return tagDst;
 	}
-	return tagDst;
+
+	return null;
 };
 
 
-// public export
+/**
+ * Remove the given elements from the DOM.
+ *
+ * @param {...Node} [nodes] element to be removed
+ * @return {boolean} operation status (true - all given elements removed)
+ *
+ * @example
+ * dom.remove(document.querySelector('div.test'));
+ * dom.remove(div1, div2, div3);
+ */
+dom.remove = function ( nodes ) {
+	var count = 0,  // amount of successfully removed nodes
+		i;
+
+	// walk through all the given elements
+	for ( i = 0; i < arguments.length; i++ ) {
+		// valid non-empty tag
+		if ( arguments[i] && arguments[i].parentNode ) {
+			if ( arguments[i].parentNode.removeChild(arguments[i]) === arguments[i] ) {
+				count++;
+			}
+		}
+	}
+
+	return arguments.length > 0 && count === arguments.length;
+};
+
+
+// public
 module.exports = dom;
