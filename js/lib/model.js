@@ -1,28 +1,39 @@
 /**
- * Base model implementation.
- *
  * @author DarkPark
  * @license GNU GENERAL PUBLIC LICENSE Version 3
  */
 
 'use strict';
 
-var Emitter = require('./emitter'),
-	io      = require('./io');
+var Emitter = require('./emitter');
 
 
 /**
- * @param {Object} attributes init attributes
+ * Base model implementation.
+ *
+ * Represents domain-specific data or information that an application will be working with.
+ * A typical example is a user account (e.g name, avatar, e-mail) or a music track (e.g title, year, album).
+ * Holds information, but don’t handle behaviour and don’t format information or influence how data appears.
+ *
  * @constructor
+ * @extends Emitter
+ *
+ * @param {Object} [data={}] init attributes
  */
-function Model ( attributes ) {
+function Model ( data ) {
+	if ( DEBUG ) {
+		if ( data !== undefined && typeof data !== 'object' ) { throw 'wrong data type'; }
+	}
+
 	// parent init
 	Emitter.call(this);
-	// init
-	this._data  = Object.create(null);
-	this.idName = '_id';
-	this.url    = null;
-	this.attributes(attributes);
+
+	/**
+	 * Model attributes with given data or empty hash table.
+	 *
+	 * @member {Object.<string, *>}
+	 **/
+	this.data = data || {};
 }
 
 
@@ -31,77 +42,221 @@ Model.prototype = Object.create(Emitter.prototype);
 Model.prototype.constructor = Model;
 
 
+// which of data fields is primary
+Model.prototype.idName = 'id';
+
+
 /**
- * Removes all attributes from the model
+ * Remove all attributes from the model event.
+ *
+ * @event module:stb/model~Model#clear
+ *
+ * @type {Object}
+ * @property {Object} data old model attributes
+ */
+
+
+/**
+ * Remove all attributes from the model.
+ *
+ * @return {boolean} operation status
+ *
+ * @fires module:stb/model~Model#clear
  */
 Model.prototype.clear = function () {
-	this._data = Object.create(null);
-	this.emit('clear');
-};
+	var data = this.data;
 
-
-Model.prototype.reset = function () {
-	//TODO: restore init data
-	this.emit('reset');
-};
-
-
-/**
- * Gets the model attribute by name
- * @param {String|Number} key
- * @return {*}
- */
-Model.prototype.get = function ( key ) {
-	return this._data[key];
-};
-
-
-/**
- * Updates the given model attribute
- * @param {String|Number} key
- * @param {*} value
- */
-Model.prototype.set = function ( key, value ) {
-	var previous = this.get(key);
-	this._data[key] = value;
-	// trigger only if values are different
-	if ( value !== previous ) {
-		this.emit('change', key, value, previous);
+	if ( DEBUG ) {
+		if ( typeof data !== 'object' ) { throw 'wrong data type'; }
 	}
-};
 
+	// is there any data?
+	if ( Object.keys(data).length > 0 ) {
+		// reset
+		this.data = {};
 
-/**
- * Extends the model with the given attribute list
- * @param {Object} data
- */
-Model.prototype.attributes = function ( data ) {
-	var index   = 0,
-		keyList = data && typeof data === 'object' ? Object.keys(data) : [];
-	for ( ; index < keyList.length; index++ ) {
-		this.set(keyList[index], data[keyList[index]]);
+		// there are some listeners
+		if ( this.events['clear'] !== undefined ) {
+			// notify listeners
+			this.emit('clear', {data: data});
+		}
+
+		return true;
 	}
+
+	return false;
 };
 
 
 /**
- * Check an attribute existence
- * @param {String|Number} key
- * @return {Boolean}
+ * Set model data event.
+ *
+ * @event module:stb/model~Model#init
+ *
+ * @type {Object}
+ * @property {Object} data new model attributes
  */
-Model.prototype.has = function ( key ) {
-	return this._data.hasOwnProperty(key);
+
+
+/**
+ * Clear and set model data.
+ *
+ * @param {Object} data attributes
+ * @return {boolean} operation status
+ *
+ * @fires module:stb/model~Model#clear
+ * @fires module:stb/model~Model#init
+ */
+Model.prototype.init = function ( data ) {
+	if ( DEBUG ) {
+		if ( typeof data !== 'object' ) { throw 'wrong data type'; }
+	}
+
+	// valid input
+	if ( data ) {
+		// reset data
+		this.clear();
+
+		// init with given data
+		this.data = data;
+
+		// there are some listeners
+		if ( this.events['init'] !== undefined ) {
+			// notify listeners
+			this.emit('init', {data: data});
+		}
+
+		return true;
+	}
+
+	return false;
 };
 
 
 /**
- * Deletes the given attribute
- * @param {String|Number} key
+ * Check an attribute existence.
+ *
+ * @param {string} name attribute
+ *
+ * @return {boolean} attribute exists or not
  */
-Model.prototype.remove = function ( key ) {
-	var previous = this.get(key);
-	delete this._data[key];
-	this.emit('change', key, undefined, previous);
+Model.prototype.has = function ( name ) {
+	if ( DEBUG ) {
+		if ( typeof this.data !== 'object' ) { throw 'wrong this.data type'; }
+	}
+
+	// hasOwnProperty method is not available directly in case of Object.create(null)
+	//return Object.hasOwnProperty.call(this.data, name);
+	return this.data.hasOwnProperty(name);
+};
+
+/**
+ * Get the model attribute by name.
+ *
+ * @param {string} name attribute
+ *
+ * @return {*} associated value
+ */
+Model.prototype.get = function ( name ) {
+	if ( DEBUG ) {
+		if ( typeof this.data !== 'object' ) { throw 'wrong this.data type'; }
+	}
+
+	return this.data[name];
+};
+
+
+/**
+ * Update or create a model attribute event.
+ *
+ * @event module:stb/model~Model#change
+ *
+ * @type {Object}
+ * @property {string} name attribute name
+ * @property {*} [prev] old/previous attribute value (can be absent on attribute creation)
+ * @property {*} [curr] new/current attribute value (can be absent on attribute removal)
+ */
+
+
+/**
+ * Update or create a model attribute.
+ *
+ * @param {string} name attribute
+ * @param {*} value associated value
+ * @return {boolean} operation status (true - attribute value was changed/created)
+ *
+ * @fires module:stb/model~Model#change
+ */
+Model.prototype.set = function ( name, value ) {
+	var isAttrSet = name in this.data,
+		emitData  = {name: name, curr: value};
+
+	if ( DEBUG ) {
+		if ( typeof this.data !== 'object' ) { throw 'wrong this.data type'; }
+	}
+
+	if ( isAttrSet ) {
+		// update
+		emitData.prev = this.data[name];
+		// only if values are different
+		if ( value !== emitData.prev ) {
+			this.data[name] = value;
+
+			// there are some listeners
+			if ( this.events['change'] !== undefined ) {
+				// notify listeners
+				this.emit('change', emitData);
+			}
+
+			return true;
+		}
+	} else {
+		// create
+		this.data[name] = value;
+
+		// there are some listeners
+		if ( this.events['change'] !== undefined ) {
+			// notify listeners
+			this.emit('change', emitData);
+		}
+
+		return true;
+	}
+
+	return false;
+};
+
+
+/**
+ * Delete the given attribute by name.
+ *
+ * @param {string} name attribute
+ * @return {boolean} operation status (true - attribute was deleted)
+ *
+ * @fires module:stb/model~Model#change
+ */
+Model.prototype.unset = function ( name ) {
+	var isAttrSet = name in this.data,
+		emitData;
+
+	if ( DEBUG ) {
+		if ( typeof this.data !== 'object' ) { throw 'wrong this.data type'; }
+	}
+
+	if ( isAttrSet ) {
+		emitData = {name: name, prev: this.data[name]};
+		delete this.data[name];
+
+		// there are some listeners
+		if ( this.events['change'] !== undefined ) {
+			// notify listeners
+			this.emit('change', emitData);
+		}
+
+		return true;
+	}
+
+	return false;
 };
 
 
@@ -129,6 +284,7 @@ Model.prototype.unpack = function ( data ) {
  */
 Model.prototype.save = function () {
 	var self = this;
+
 	if ( this.url ) {
 		// collect data
 		io.ajax(this.url, {
@@ -164,6 +320,7 @@ Model.prototype.saveFailure = function () {
  */
 Model.prototype.parse = function ( response ) {
 	var data = {};
+
 	try {
 		data = JSON.parse(response).data;
 	} catch(e){ console.log(e); }
