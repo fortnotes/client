@@ -1,7 +1,7 @@
 /**
  * Compile HTML files from Jade sources.
  *
- * @author Stanislav Kalashnik <sk@infomir.eu>
+ * @author DarkPark
  * @license GNU GENERAL PUBLIC LICENSE Version 3
  */
 

@@ -1,7 +1,7 @@
 /**
  * Set of gulp task helpers.
  *
- * @author Stanislav Kalashnik <sk@infomir.eu>
+ * @author DarkPark
  * @license GNU GENERAL PUBLIC LICENSE Version 3
  */
 
