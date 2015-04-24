@@ -7,55 +7,39 @@
 
 'use strict';
 
-var gulp    = require('gulp'),
-	apidoc  = require('gulp-apidoc'),
-	plumber = require('gulp-plumber'),
-	eslint  = require('gulp-eslint'),
-	nodemon = require('gulp-nodemon'),
-	mocha   = require('gulp-mocha');
+var path = require('path'),
+	gulp = require('gulp'),
+	glr  = require('gulp-livereload'),
+	log  = require('./tasks/utils').log;
 
 
-gulp.task('lint', function () {
-	return gulp
-		.src([
-			//'./client/app/js/**/*.js',
-			'./client/config/**/*.js',
-			'./server/**/*.js'
-		])
-		.pipe(plumber())
-		.pipe(eslint())
-		.pipe(eslint.format());
-});
+// enable colors in console
+require('tty-colors');
+
+// load tasks
+require('./tasks/img');
+require('./tasks/jade');
+require('./tasks/less');
+require('./tasks/lint');
+require('./tasks/static');
+require('./tasks/webpack');
 
 
-// build REST documentation
-gulp.task('apidoc', function () {
-	apidoc.exec({
-		src: './server/',
-		dest: './doc/api/',
-		debug: false
+// main entry point
+gulp.task('default', ['lint', 'img', 'jade', 'less', 'webpack', 'static'], function () {
+	// rebuild files on modification
+	gulp.watch(['./js/**/*.js'], ['webpack:develop']);
+	gulp.watch(['./jade/**/*.jade'], ['jade:develop']);
+	gulp.watch(['./less/**/*.less'], ['less:develop']);
+
+	// serve livereload
+	glr.listen({quiet: true});
+
+	// reload event
+	gulp.watch(['./build/**/*.{html,js,css}']).on('change', function ( file ) {
+		// report
+		log('watch   '.bgCyan.black, 'reload ' + ('./' + path.relative(path.join(__dirname, '..'), file.path)).bold);
+		// reload
+		glr.changed(file);
 	});
-});
-
-
-// serve API requests
-gulp.task('serve', function () {
-	nodemon({
-		script: './server/main.js',
-		watch: ['./server/'],
-		ext: 'js'
-	});
-});
-
-
-// unit tests
-gulp.task('tests', function () {
-	return gulp.src('./server/tests/*.js', {read: false})
-		.pipe(mocha({reporter: 'spec'}));
-});
-
-
-// entry point
-gulp.task('default', ['serve'], function () {
-	gulp.watch(['./server/**/*.js'], ['apidoc']);
 });
