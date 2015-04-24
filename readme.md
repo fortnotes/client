@@ -1,6 +1,7 @@
 # FortNotes #
 
-[![Join the chat at https://gitter.im/DarkPark/FortNotes](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/DarkPark/FortNotes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Public HTTPS client](https://img.shields.io/badge/public-client-green.svg?style=flat-square)](https://fortnotes.github.io/)
+[![Gitter](https://img.shields.io/badge/gitter-join%20chat-blue.svg?style=flat-square)](https://gitter.im/DarkPark/FortNotes)
 
 FortNotes is a highly secure online private information manager based on the AES encryption in the browser.
 The current stable version - <https://bitbucket.org/DarkPark/fortnotes>
@@ -49,11 +50,11 @@ api.fortnotes.com
 Two-steps algorithm:
 
 `GET /api/v1/auth/name`
-> Where `name` is a sha256 hash value of user name.  
+> Where `name` is a sha256 hash value of user name.
 > Returns operation status code, random salt string used for password hashing and a client call IP address (on success).
 
 `POST /api/v1/auth/name/pass`
-> Where `name` is a sha256 hash value of user name, `pass` is a salted sha256 hash value of user pass.  
+> Where `name` is a sha256 hash value of user name, `pass` is a salted sha256 hash value of user pass.
 > Returns SJCL user encryption options and a generated API key for future access.
 
 
