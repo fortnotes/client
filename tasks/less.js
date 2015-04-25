@@ -7,9 +7,10 @@
 
 'use strict';
 
-var gulp = require('gulp'),
-	less = require('gulp-less'),
-	del  = require('del'),
+var gulp       = require('gulp'),
+	less       = require('gulp-less'),
+	del        = require('del'),
+	plumber    = require('gulp-plumber'),
 	sourceMaps = require('gulp-sourcemaps'),
 	minifyCSS  = require('gulp-minify-css');
 
@@ -21,6 +22,7 @@ gulp.task('less:clean', function ( done ) {
 
 gulp.task('less:develop', function () {
 	return gulp.src('./less/develop.less')
+		.pipe(plumber())
 		.pipe(sourceMaps.init())
 		.pipe(less())
 		.pipe(sourceMaps.write('./'))
@@ -30,6 +32,7 @@ gulp.task('less:develop', function () {
 
 gulp.task('less:release', function () {
 	return gulp.src('./less/release.less')
+		.pipe(plumber())
 		.pipe(less())
 		.pipe(minifyCSS())
 		.pipe(gulp.dest('./build/css'));
