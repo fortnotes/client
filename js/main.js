@@ -7,6 +7,36 @@
 
 'use strict';
 
+var app    = require('./lib/app'),
+	router = require('./lib/router');
+
+
+app.addListeners({
+	// all resources are loaded
+	load: function load () {
+		// set pages
+		router.init([
+			require('./pages/init'),
+			require('./pages/main')
+			//require('./pages/help')
+		]);
+	},
+
+	// everything is ready
+	done: function done () {
+		// go to the main page
+		router.navigate('pageMain');
+	},
+
+	// event
+	keydown: function keydown ( event ) {
+		if ( event.code === keys.back ) {
+			router.back();
+		}
+	}
+});
+
+
 //var aes    = require('./aes'),
 //	api    = require('./api'),
 //	config = require('./config'),
