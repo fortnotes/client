@@ -21,7 +21,7 @@
 	"dependencies": {
 		"del": "^1.2.0",
 		"gulp": "^3.8.0",
-		"gulp-eslint": "^0.13.2",
+		"gulp-eslint": "^0.14.0",
 		"gulp-jade": "^1.0.1",
 		"gulp-less": "^3.0.3",
 		"gulp-livereload": "^3.8.0",
