@@ -16,6 +16,16 @@ var path = require('path'),
 // enable colors in console
 require('tty-colors');
 
+
+// general app paths
+global.paths = {
+	root:   __dirname,
+	tasks:  path.join(__dirname, 'tasks'),
+	app:    __dirname,
+	build:  path.join(__dirname, 'build')
+};
+
+
 // load tasks
 require('./tasks/img');
 require('./tasks/jade');

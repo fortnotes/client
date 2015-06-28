@@ -16,11 +16,14 @@ html
 			link(rel='stylesheet', type='text/css', href='css/release.css')
 	body
 		include pages/init
+		include pages/account
 		include pages/main
 		//include pages/auth
 		//include pages/list
 		//include pages/edit
 		//include pages/menu
+
+		include modals/wizard
 
 		if develop
 			script(type='text/javascript', src='js/develop.js', async='async')

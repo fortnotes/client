@@ -57,6 +57,9 @@ function Page ( config ) {
 	// sanitize
 	config = config || {};
 
+	// can't accept focus
+	config.focusable = config.focusable || false;
+
 	// parent init
 	Component.call(this, config);
 

@@ -7,12 +7,15 @@
 
 'use strict';
 
-var util    = require('util'),
+var path    = require('path'),
+	util    = require('util'),
 	gulp    = require('gulp'),
 	plumber = require('gulp-plumber'),
 	webpack = require('gulp-webpack'),
 	log     = require('./utils').log,
-	del     = require('del');
+	del     = require('del'),
+	pkgInfo = require(path.join(global.paths.root, 'package.json')),
+	wpkInfo = require(path.join(global.paths.root, 'node_modules', 'gulp-webpack', 'node_modules', 'webpack', 'package.json'));
 
 
 /**
@@ -84,22 +87,20 @@ function report ( err, stats ) {
 }
 
 
-gulp.task('webpack:clean:develop', function ( done ) {
-	del(['./build/develop/app.js', './build/develop/app.js.map'], done);
+// remove all js and map files
+gulp.task('webpack:clean', function ( done ) {
+	del([
+		path.join(global.paths.build, 'js', 'release.*'),
+		path.join(global.paths.build, 'js', 'develop.*')
+	], done);
 });
 
 
-gulp.task('webpack:clean:release', function ( done ) {
-	del(['./build/release/app.js'], done);
-});
-
-
-gulp.task('webpack:clean', ['webpack:clean:develop', 'webpack:clean:release']);
-
-
+// generate js files
 gulp.task('webpack:develop', function () {
 	return gulp
 		.src('./js/develop.js')
+		.src(path.join(global.paths.app, 'js', 'develop.js'))
 		.pipe(plumber())
 		.pipe(webpack({
 			output: {
@@ -130,16 +131,14 @@ gulp.task('webpack:develop', function () {
 				})
 			]
 		}, null, report))
-		.pipe(gulp.dest('./build/js/'));
+		.pipe(gulp.dest(path.join(global.paths.build, 'js')));
 });
 
 
+// generate js files
 gulp.task('webpack:release', function () {
-	var appInfo = require('../package.json'),
-		wpkInfo = require('../node_modules/gulp-webpack/node_modules/webpack/package.json');
-
 	return gulp
-		.src('./js/main.js')
+		.src(path.join(global.paths.app, 'js', 'main.js'))
 		.pipe(plumber())
 		.pipe(webpack({
 			output: {
@@ -178,12 +177,13 @@ gulp.task('webpack:release', function () {
 				// add comment to the top of app.js
 				new webpack.webpack.BannerPlugin(util.format(
 					'%s: v%s (webpack: v%s)',
-					appInfo.name, appInfo.version, wpkInfo.version
+					pkgInfo.name, pkgInfo.version, wpkInfo.version
 				))
 			]
 		}, null, report))
-		.pipe(gulp.dest('./build/js/'));
+		.pipe(gulp.dest(path.join(global.paths.build, 'js')));
 });
 
 
+// generate all js files
 gulp.task('webpack', ['webpack:develop', 'webpack:release']);

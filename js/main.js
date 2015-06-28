@@ -17,6 +17,7 @@ app.addListeners({
 		// set pages
 		router.init([
 			require('./pages/init'),
+			require('./pages/account'),
 			require('./pages/main')
 			//require('./pages/help')
 		]);
@@ -25,7 +26,7 @@ app.addListeners({
 	// everything is ready
 	done: function done () {
 		// go to the main page
-		router.navigate('pageMain');
+		router.navigate('pageAccount');
 	},
 
 	// event

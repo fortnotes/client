@@ -1,5 +1,5 @@
 /**
- * Page implementation.
+ * Main page.
  *
  * @author DarkPark
  * @license GNU GENERAL PUBLIC LICENSE Version 3

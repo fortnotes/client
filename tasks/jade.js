@@ -7,30 +7,28 @@
 
 'use strict';
 
-var gulp    = require('gulp'),
+var path    = require('path'),
+	gulp    = require('gulp'),
 	jade    = require('gulp-jade'),
 	plumber = require('gulp-plumber'),
 	rename  = require('gulp-rename'),
 	del     = require('del'),
-	pkgInfo = require('../package.json');
+	pkgInfo = require(path.join(global.paths.root, 'package.json'));
 
 
-gulp.task('jade:clean:develop', function ( done ) {
-	del('./build/debug.html', done);
+// remove all html files
+gulp.task('jade:clean', function ( done ) {
+	del([
+		path.join(global.paths.build, 'index.html'),
+		path.join(global.paths.build, 'develop.html')
+	], done);
 });
 
 
-gulp.task('jade:clean:release', function ( done ) {
-	del('./build/index.html', done);
-});
-
-
-gulp.task('jade:clean', ['jade:clean:develop', 'jade:clean:release']);
-
-
+// generate html files
 gulp.task('jade:develop', function () {
 	return gulp
-		.src('./jade/main.jade')
+		.src(path.join(global.paths.app, 'jade', 'main.jade'))
 		.pipe(plumber())
 		.pipe(jade({
 			pretty: '\t',
@@ -41,13 +39,14 @@ gulp.task('jade:develop', function () {
 			}
 		}))
 		.pipe(rename('develop.html'))
-		.pipe(gulp.dest('./build/'));
+		.pipe(gulp.dest(global.paths.build));
 });
 
 
+// generate html files
 gulp.task('jade:release', function () {
 	return gulp
-		.src('./jade/main.jade')
+		.src(path.join(global.paths.app, 'jade', 'main.jade'))
 		.pipe(plumber())
 		.pipe(jade({
 			pretty: '\t',
@@ -58,8 +57,9 @@ gulp.task('jade:release', function () {
 			}
 		}))
 		.pipe(rename('index.html'))
-		.pipe(gulp.dest('./build/'));
+		.pipe(gulp.dest(global.paths.build));
 });
 
 
+// generate all html files
 gulp.task('jade', ['jade:develop', 'jade:release']);
