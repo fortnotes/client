@@ -7,17 +7,19 @@
 
 'use strict';
 
-var gulp    = require('gulp'),
+var path    = require('path'),
+	gulp    = require('gulp'),
 	plumber = require('gulp-plumber'),
 	eslint  = require('gulp-eslint'),
-	log     = require('./utils').log;
+	log     = require('gulp-util').log;
 
 
 gulp.task('lint', function () {
 	return gulp
 		.src([
-			//'./js/**/*.js',
-			'./tasks/**/*.js'
+			//path.join(global.paths.app,    'js', '**', '*.js'),
+			path.join(global.paths.config, '**', '*.js'),
+			path.join(global.paths.tasks,  '**', '*.js')
 		])
 		.pipe(plumber())
 		.pipe(eslint())

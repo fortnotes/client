@@ -7,15 +7,16 @@
 
 'use strict';
 
-var path    = require('path'),
-	util    = require('util'),
-	gulp    = require('gulp'),
-	plumber = require('gulp-plumber'),
-	webpack = require('gulp-webpack'),
-	log     = require('./utils').log,
-	del     = require('del'),
-	pkgInfo = require(path.join(global.paths.root, 'package.json')),
-	wpkInfo = require(path.join(global.paths.root, 'node_modules', 'gulp-webpack', 'node_modules', 'webpack', 'package.json'));
+var path     = require('path'),
+	util     = require('util'),
+	gulp     = require('gulp'),
+	plumber  = require('gulp-plumber'),
+	webpack  = require('gulp-webpack'),
+	log      = require('gulp-util').log,
+	del      = require('del'),
+	pkgInfo  = require(path.join(global.paths.root, 'package.json')),
+	wpkInfo  = require(path.join(global.paths.root, 'node_modules', 'gulp-webpack', 'node_modules', 'webpack', 'package.json')),
+	warnings = false;
 
 
 /**
@@ -26,15 +27,17 @@ var path    = require('path'),
  */
 function report ( err, stats ) {
 	var json  = stats.toJson({source:false}),
-		title = 'webpack '.black.bgYellow;
+		title = 'webpack '.inverse;
 
 	if ( err ) {
 		log(title, 'FATAL ERROR'.red, err);
 	} else {
 		// general info
+		log(title, '********************************'.grey);
 		log(title, 'hash:\t'    + json.hash.bold);
 		log(title, 'version:\t' + json.version.bold);
 		log(title, 'time:\t'    + json.time.toString().bold + ' ms');
+		log(title, '********************************'.grey);
 
 		// title and headers
 		log(title, 'ASSETS'.green);
@@ -73,16 +76,18 @@ function report ( err, stats ) {
 			});
 		});
 
-		json.warnings.forEach(function ( warning, warningIndex ) {
-			log(title, ('WARNING #' + warningIndex).yellow);
-			warning.split('\n').forEach(function ( line, lineIndex ) {
-				if ( lineIndex === 0 ) {
-					log(title, line.bold);
-				} else {
-					log(title, '\t' + line.grey);
-				}
+		if ( warnings ) {
+			json.warnings.forEach(function ( warning, warningIndex ) {
+				log(title, ('WARNING #' + warningIndex).yellow);
+				warning.split('\n').forEach(function ( line, lineIndex ) {
+					if ( lineIndex === 0 ) {
+						log(title, line.bold);
+					} else {
+						log(title, '\t' + line.grey);
+					}
+				});
 			});
-		});
+		}
 	}
 }
 
@@ -99,7 +104,6 @@ gulp.task('webpack:clean', function ( done ) {
 // generate js files
 gulp.task('webpack:develop', function () {
 	return gulp
-		.src('./js/develop.js')
 		.src(path.join(global.paths.app, 'js', 'develop.js'))
 		.pipe(plumber())
 		.pipe(webpack({
