@@ -1,0 +1,39 @@
+// top-level page block
+#pageAccount.component.page
+
+    table
+        tr
+            td.header.
+                FortNotes Online Password Manager
+        tr
+            td.body
+                //#pageAccountWizard
+                #pageAccountStep1.step
+                    .title New account creation (step 1 of 3)
+                    .content
+                        .description Select a server to store your encrypted data
+                            br
+                            br
+                            table
+                                tr
+                                    td.radio
+                                        input(type='radio', name='apiServer', value='default', checked)
+                                    td(colspan=2) Main FortNotes server (api.fortnotes.com) via secure connection
+                                tr
+                                    td.radio
+                                        input(type='radio', name='apiServer', value='custom')
+                                    td Enter your own server:
+                                    td
+                                        input.server(type='text', value='')
+                    .buttons
+                        #pageAccountStep1Next
+
+                #pageAccountStep2.step
+                    .content step 2
+
+                #pageAccountStep3.step
+                    .content step 3
+        tr
+            td.footer
+                span.title version
+                span.value= version

@@ -10,8 +10,8 @@
 var dom = require('./lib/dom');
 
 //var app     = require('../app'),
-//	storage = require('./storage'),
-//	metrics = require('cfg/metrics');
+//    storage = require('./storage'),
+//    metrics = require('cfg/metrics');
 //
 //
 //// export to globals for easy debugging
@@ -29,8 +29,8 @@ var dom = require('./lib/dom');
 // livereload activation
 // load external script
 document.head.appendChild(dom.tag('script', {
-	type: 'text/javascript',
-	src: '//' + location.hostname + ':35729/livereload.js'
+    type: 'text/javascript',
+    src: '//' + location.hostname + ':35729/livereload.js'
 }));
 
 // the application itself

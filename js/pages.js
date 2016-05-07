@@ -10,6 +10,6 @@
 var Page = require('./lib/page');
 
 module.exports = {
-	auth: new Page(document.querySelector('body > div.page.auth')),
-	list: new Page(document.querySelector('body > div.page.list'))
+    auth: new Page(document.querySelector('body > div.page.auth')),
+    list: new Page(document.querySelector('body > div.page.list'))
 };

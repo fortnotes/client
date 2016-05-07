@@ -8,8 +8,8 @@
 'use strict';
 
 var Collection = require('./lib/collection'),
-	config     = require('./config'),
-	Note       = require('./model.note.js');
+    config     = require('./config'),
+    Note       = require('./model.note.js');
 
 
 /**
@@ -17,10 +17,10 @@ var Collection = require('./lib/collection'),
  * @constructor
  */
 function Notes ( models ) {
-	// parent init
-	Collection.call(this, models);
-	this.model  = Note;
-	this.url    = config.apiUrl + 'notes';
+    // parent init
+    Collection.call(this, models);
+    this.model  = Note;
+    this.url    = config.apiUrl + 'notes';
 }
 
 

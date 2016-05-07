@@ -9,7 +9,7 @@
 
 // declarations
 var Emitter = require('./emitter'),
-	io      = require('./io');
+    io      = require('./io');
 
 
 /**
@@ -17,14 +17,14 @@ var Emitter = require('./emitter'),
  * @constructor
  */
 function Collection ( models ) {
-	// parent init
-	Emitter.call(this);
-	// init
-	this._data = [];
-	this._ids  = {};
-	this.model = null;
-	this.url   = null;
-	this.models(models);
+    // parent init
+    Emitter.call(this);
+    // init
+    this._data = [];
+    this._ids  = {};
+    this.model = null;
+    this.url   = null;
+    this.models(models);
 }
 
 
@@ -37,14 +37,14 @@ Collection.prototype.constructor = Collection;
  * Removes all models from the collection
  */
 Collection.prototype.clear = function () {
-	var index = 0;
-	// remove all associated links
-	for ( ; index < this._data.length; index++ ) {
-		this._data[index].removeAllListeners();
-	}
-	this._data = [];
-	this._ids  = {};
-	this.emit('clear');
+    var index = 0;
+    // remove all associated links
+    for ( ; index < this._data.length; index++ ) {
+        this._data[index].removeAllListeners();
+    }
+    this._data = [];
+    this._ids  = {};
+    this.emit('clear');
 };
 
 
@@ -53,12 +53,12 @@ Collection.prototype.clear = function () {
  * @param {[app.class.Model]} data model list
  */
 Collection.prototype.models = function ( data ) {
-	var index = 0;
-	if ( Array.isArray(data) ) {
-		for ( ; index < data.length; index++ ) {
-			this.add(data[index]);
-		}
-	}
+    var index = 0;
+    if ( Array.isArray(data) ) {
+        for ( ; index < data.length; index++ ) {
+            this.add(data[index]);
+        }
+    }
 };
 
 
@@ -67,9 +67,9 @@ Collection.prototype.models = function ( data ) {
  * @param {app.class.Model} model
  */
 Collection.prototype.add = function ( model ) {
-	this._ids[model.get(model.idName)] = model;
-	this._data.push(model);
-	this.emit('add', model);
+    this._ids[model.get(model.idName)] = model;
+    this._data.push(model);
+    this.emit('add', model);
 };
 
 
@@ -79,9 +79,9 @@ Collection.prototype.add = function ( model ) {
  * @param {Number} position index of the model
  */
 Collection.prototype.insert = function ( model, position ) {
-	this._ids[model.get(model.idName)] = model;
-	this._data.splice(position, 0, model);
-	this.emit('add', model, position);
+    this._ids[model.get(model.idName)] = model;
+    this._data.splice(position, 0, model);
+    this.emit('add', model, position);
 };
 
 
@@ -90,12 +90,12 @@ Collection.prototype.insert = function ( model, position ) {
  * @param {app.class.Model} model
  */
 Collection.prototype.remove = function ( model ) {
-	var index = this._data.indexOf(model);
-	if ( index > -1 ) {
-		this._data.splice(index, 1);
-		delete this._ids[model.get('id')];
-		this.emit('remove', model);
-	}
+    var index = this._data.indexOf(model);
+    if ( index > -1 ) {
+        this._data.splice(index, 1);
+        delete this._ids[model.get('id')];
+        this.emit('remove', model);
+    }
 };
 
 
@@ -105,7 +105,7 @@ Collection.prototype.remove = function ( model ) {
  * @return {app.class.Model} model or undefined if fail
  */
 Collection.prototype.at = function ( position ) {
-	return this._data[position];
+    return this._data[position];
 };
 
 
@@ -115,15 +115,15 @@ Collection.prototype.at = function ( position ) {
  * @return {app.class.Model} model or undefined if fail
  */
 Collection.prototype.get = function ( id ) {
-	return this._ids[id];
+    return this._ids[id];
 };
 
 
 // extending with base methods
 ['filter', 'forEach', 'every', 'map', 'some'].forEach(function ( name ) {
-	Collection.prototype[name] = function () {
-		return Array.prototype[name].apply(this._data, arguments);
-	};
+    Collection.prototype[name] = function () {
+        return Array.prototype[name].apply(this._data, arguments);
+    };
 });
 
 
@@ -132,8 +132,8 @@ Collection.prototype.get = function ( id ) {
  * @param {Function} comparator
  */
 Collection.prototype.sort = function ( comparator ) {
-	this._data.sort(comparator);
-	this.emit('sort');
+    this._data.sort(comparator);
+    this.emit('sort');
 };
 
 
@@ -141,29 +141,29 @@ Collection.prototype.sort = function ( comparator ) {
  * Collects models from a server
  */
 Collection.prototype.fetch = function () {
-	var self = this, index = 0;
-	if ( this.model && this.url ) {
-		// collect data
-		io.ajax(this.url, {
-			// request params
-			method: 'get',
-			onload: function( data ) {
-				data = self.parse(data);
-				// create models from response and add
-				if ( Array.isArray(data) && self.model ) {
-					for ( ; index < data.length; index++ ) {
-						//console.log(data[index]);
-						// create a model from received data
-						self.add(new (self.model)(data[index]));
-					}
-				}
-				self.emit('fetch', true);
-			},
-			// error handlers
-			onerror:   this.fetchFailure,
-			ontimeout: this.fetchFailure
-		});
-	}
+    var self = this, index = 0;
+    if ( this.model && this.url ) {
+        // collect data
+        io.ajax(this.url, {
+            // request params
+            method: 'get',
+            onload: function( data ) {
+                data = self.parse(data);
+                // create models from response and add
+                if ( Array.isArray(data) && self.model ) {
+                    for ( ; index < data.length; index++ ) {
+                        //console.log(data[index]);
+                        // create a model from received data
+                        self.add(new (self.model)(data[index]));
+                    }
+                }
+                self.emit('fetch', true);
+            },
+            // error handlers
+            onerror:   this.fetchFailure,
+            ontimeout: this.fetchFailure
+        });
+    }
 };
 
 
@@ -171,7 +171,7 @@ Collection.prototype.fetch = function () {
  * Error handler while model data fetch
  */
 Collection.prototype.fetchFailure = function () {
-	this.emit('fetch', false);
+    this.emit('fetch', false);
 };
 
 
@@ -181,11 +181,11 @@ Collection.prototype.fetchFailure = function () {
  * @return {Array}
  */
 Collection.prototype.parse = function ( response ) {
-	var data = [];
-	try {
-		data = JSON.parse(response).data;
-	} catch(e){ console.log(e); }
-	return data;
+    var data = [];
+    try {
+        data = JSON.parse(response).data;
+    } catch(e){ console.log(e); }
+    return data;
 };
 
 

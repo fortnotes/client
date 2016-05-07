@@ -16,11 +16,11 @@ require('tty-colors');
 
 // general app paths
 global.paths = {
-	root:   __dirname,
-	tasks:  path.join(__dirname, 'tasks'),
-	app:    __dirname,
-	build:  path.join(__dirname, 'build'),
-	config: path.join(__dirname, 'config')
+    root:   __dirname,
+    tasks:  path.join(__dirname, 'tasks'),
+    app:    __dirname,
+    build:  path.join(__dirname, 'build'),
+    config: path.join(__dirname, 'config')
 };
 
 
@@ -41,19 +41,19 @@ require('./tasks/webpack');
 //
 //// main entry point
 //gulp.task('default', ['lint', 'img', 'jade', 'less', 'webpack', 'static'], function () {
-//	// rebuild files on modification
-//	gulp.watch(['./js/**/*.js'], ['webpack:develop']);
-//	gulp.watch(['./jade/**/*.jade'], ['jade:develop']);
-//	gulp.watch(['./less/**/*.less'], ['less:develop']);
+//    // rebuild files on modification
+//    gulp.watch(['./js/**/*.js'], ['webpack:develop']);
+//    gulp.watch(['./jade/**/*.jade'], ['jade:develop']);
+//    gulp.watch(['./less/**/*.less'], ['less:develop']);
 //
-//	// serve livereload
-//	glr.listen({quiet: true});
+//    // serve livereload
+//    glr.listen({quiet: true});
 //
-//	// reload event
-//	gulp.watch(['./build/**/*.{html,js,css}']).on('change', function ( file ) {
-//		// report
-//		log('watch   '.bgCyan.black, 'reload ' + ('./' + path.relative(path.join(__dirname, '..'), file.path)).bold);
-//		// reload
-//		glr.changed(file);
-//	});
+//    // reload event
+//    gulp.watch(['./build/**/*.{html,js,css}']).on('change', function ( file ) {
+//        // report
+//        log('watch   '.bgCyan.black, 'reload ' + ('./' + path.relative(path.join(__dirname, '..'), file.path)).bold);
+//        // reload
+//        glr.changed(file);
+//    });
 //});

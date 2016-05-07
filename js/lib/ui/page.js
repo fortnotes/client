@@ -38,44 +38,44 @@ var Component = require('../component');
  * });
  */
 function Page ( config ) {
-	/**
-	 * Page visibility/active state flag.
-	 *
-	 * @readonly
-	 * @type {boolean}
-	 */
-	this.active = false;
+    /**
+     * Page visibility/active state flag.
+     *
+     * @readonly
+     * @type {boolean}
+     */
+    this.active = false;
 
-	/**
-	 * Link to the currently active component with focus.
-	 *
-	 * @readonly
-	 * @type {Component}
-	 */
-	this.activeComponent = null;
+    /**
+     * Link to the currently active component with focus.
+     *
+     * @readonly
+     * @type {Component}
+     */
+    this.activeComponent = null;
 
-	// sanitize
-	config = config || {};
+    // sanitize
+    config = config || {};
 
-	// can't accept focus
-	config.focusable = config.focusable || false;
+    // can't accept focus
+    config.focusable = config.focusable || false;
 
-	// parent init
-	Component.call(this, config);
+    // parent init
+    Component.call(this, config);
 
-	// correct CSS class names
-	this.$node.classList.add('page');
+    // correct CSS class names
+    this.$node.classList.add('page');
 
-	// state flag
-	this.active = this.$node.classList.contains('active');
+    // state flag
+    this.active = this.$node.classList.contains('active');
 
-	// correct DOM parent/child connection if necessary
-	if ( this.$node.parentNode === null ) {
-		document.body.appendChild(this.$node);
-	}
+    // correct DOM parent/child connection if necessary
+    if ( this.$node.parentNode === null ) {
+        document.body.appendChild(this.$node);
+    }
 
-	// always itself
-	this.page = this;
+    // always itself
+    this.page = this;
 }
 
 

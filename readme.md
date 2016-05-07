@@ -72,3 +72,8 @@ There are some stored parameters in the browser localStorage:
 
 
 The [code style](https://github.com/DarkPark/jscs) used for development.
+
+
+## License ##
+
+`fortnotes-client` is released under the [GPL-3.0 License](http://opensource.org/licenses/GPL-3.0).

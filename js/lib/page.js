@@ -15,11 +15,11 @@ var Emitter = require('./emitter');
  * @constructor
  */
 function Page ( node ) {
-	// parent init
-	Emitter.call(this);
-	// init
-	this.$node = node;
-	this._data = Object.create(null);
+    // parent init
+    Emitter.call(this);
+    // init
+    this.$node = node;
+    this._data = Object.create(null);
 }
 
 
@@ -32,8 +32,8 @@ Page.prototype.constructor = Page;
  * Show page
  */
 Page.prototype.show = function () {
-	this.$node.classList.add('active');
-	this.emit('show');
+    this.$node.classList.add('active');
+    this.emit('show');
 };
 
 
@@ -41,8 +41,8 @@ Page.prototype.show = function () {
  * Hide page
  */
 Page.prototype.hide = function () {
-	this.$node.classList.remove('active');
-	this.emit('hide');
+    this.$node.classList.remove('active');
+    this.emit('hide');
 };
 
 
