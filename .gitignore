@@ -1,3 +1,5 @@
 .idea
-build/
-node_modules/
+.sdk
+node_modules
+app/js/*.map
+app/css/*.map
