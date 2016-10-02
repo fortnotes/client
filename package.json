@@ -15,11 +15,20 @@
         "start": "spasdk",
         "build": "spasdk build",
         "watch": "spasdk watch",
-        "serve": "spasdk serve"
+        "serve": "spasdk serve",
+        "lint": "eslint .",
+        "test": "npm run lint"
     },
     "dependencies": {
         "spa-app": "spasdk/app",
+        "spa-component-button": "spasdk/component-button",
+        "spa-component-list": "spasdk/component-list",
         "spa-component-page": "spasdk/component-page",
+        "spa-keys": "spasdk/keys",
+        "spa-wamp": "spasdk/wamp"
+    },
+    "devDependencies": {
+        "eslint": "3.*.*",
         "spa-eslint-config": "spasdk/eslint-config"
     },
     "keywords": [

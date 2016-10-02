@@ -1,0 +1,23 @@
+#pageInit {
+    display: table;
+
+    > .cell {
+        display: table-cell;
+        position: relative;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 150%;
+
+        > .version {
+            position: absolute;
+            bottom: 50px;
+            right: 50px;
+            font-size: 50%;
+            //color: #555;
+
+            > .value {
+                //color: #fff;
+            }
+        }
+    }
+}

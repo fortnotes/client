@@ -1,4 +1,5 @@
-# FortNotes #
+FortNotes client application
+============================
 
 [![Public HTTPS client](https://img.shields.io/badge/public-client-green.svg?style=flat-square)](https://fortnotes.github.io/)
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-blue.svg?style=flat-square)](https://gitter.im/DarkPark/FortNotes)

@@ -1,1 +1,4 @@
-messages.pot contains extracted translatable strings from given input files
+Application gettext files
+=========================
+
+The directory contains localization source POT and PO files to generate [localization files](../../app/lang/).

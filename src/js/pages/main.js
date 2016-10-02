@@ -1,121 +1,113 @@
 /**
- * Main page.
- *
- * @author DarkPark
- * @license GNU GENERAL PUBLIC LICENSE Version 3
+ * Main page implementation.
  */
 
 'use strict';
 
-var id   = 'pageMain',
-    //List = require('stb/ui/list'),
-    Page = require('../lib/ui/page'),
-    page = new Page({$node: document.getElementById(id)});
+var app    = require('spa-app'),
+    Button = require('spa-component-button'),
+    List   = require('spa-component-list'),
+    Page   = require('spa-component-page'),
+    rtc    = require('../modules/rtc'),
+    NodeList = require('./../modules/node.list'),
+    page   = new Page({$node: window.pageMain}),
+    peer;
 
 
-page.addListener('load', function load () {
-    //var menuData = [
-    //        {
-    //            value: 'Panel',
-    //            panel: require('../tabs/main.panel')
-    //        },
-    //        {
-    //            value: 'Button',
-    //            panel: require('../tabs/main.button')
-    //        },
-    //        {
-    //            value: 'Input',
-    //            panel: require('../tabs/main.input')
-    //        },
-    //        {
-    //            value: 'CheckBox',
-    //            panel: require('../tabs/main.check.box')
-    //        },
-    //        {
-    //            value: 'Grid',
-    //            panel: require('../tabs/main.grid')
-    //        },
-    //        {
-    //            value: 'List',
-    //            panel: require('../tabs/main.list')
-    //        },
-    //        {
-    //            value: 'ProgressBar',
-    //            panel: require('../tabs/main.progress.bar')
-    //        },
-    //        {
-    //            value: 'Page',
-    //            panel: require('../tabs/main.page')
-    //        },
-    //        {
-    //            value: 'Modal',
-    //            panel: require('../tabs/main.modal')
-    //        },
-    //        {
-    //            value: 'Widget',
-    //            panel: require('../tabs/main.widget')
-    //        }
-    //    ];
-    //
-    //// attach to page
-    //menuData.forEach(function ( item ) {
-    //    page.add(item.panel);
-    //});
-    //
-    //page.add(
-    //    page.menu = new List({
-    //        $node: document.getElementById('pageMainMenu'),
-    //        data: menuData,
-    //        focusIndex: 0,
-    //        size: 10,
-    //        cycle: true,
-    //        render: function ( $item, data ) {
-    //            $item.textContent = data.value;
-    //        },
-    //        events: {
-    //            /*click: function ( data ) {
-    //                //console.log('click');
-    //                //data.event.stop = true;
-    //                //debug.inspect(data, 1);
-    //            },
-    //            focus: function ( data ) {
-    //                //console.log('focus');
-    //                //debug.inspect(data, 1);
-    //            },
-    //            'click:item': function ( data ) {
-    //                //console.log('click:item');
-    //                //debug.inspect(data, 1);
-    //            },*/
-    //            'focus:item': function ( data ) {
-    //                //console.log('focus:item');
-    //                //debug.inspect(data, 1);
-    //                if ( data.$prev ) {
-    //                    data.$prev.data.panel.hide();
-    //                }
-    //                data.$curr.data.panel.show();
-    //            }
-    //            /*'blur:item': function ( data ) {
-    //                //console.log('blur:item');
-    //                //debug.inspect(data, 1);
-    //            }*/
-    //        }
-    //    })
-    //    //page.body = new Panel({$node: document.getElementById('pageMainBody')})
-    //);
-    //
-    //page.focusable = false;
-    //page.addListener('click', function ( data ) {
-    //    data.event.stop = true;
-    //});
-});
+function addNodeId ( id ) {
+    if ( id && app.nodes.indexOf(id) === -1 ) {
+        app.nodes.push(id);
+        localStorage.setItem('nodes', JSON.stringify(app.nodes));
+    }
+}
+
+function connectNode ( id ) {
+    peer = rtc.Offerer.createOffer(function ( sdp ) {
+        app.wamp.call('connect', {id: id, sdp: sdp}, function ( error, result ) {
+            //console.log(error, result);
+            if ( error ) {
+                console.log('was not able to connect to ', id);
+            } else {
+                peer.setRemoteDescription(result);
+                addNodeId(id);
+            }
+        });
+    });
+
+    peer.peer.onicecandidate = function ( event ) {
+        if ( event.candidate ) {
+            //socket.send(JSON.stringify(event.candidate));
+            app.wamp.call('ice', {id: id, candidate: event.candidate});
+        }
+    };
+}
 
 
-page.addListener('show', function show () {
-    // initial active component
-    if ( !page.activeComponent ) {
-        //page.menu.focus();
+app.wamp.addListener('connect', function ( params, callback ) {
+    if ( app.nodes.indexOf(params.id) !== -1 || confirm('Do you want to add new node with id ' + params.id) ) {
+        peer = rtc.Answerer.createAnswer(params.sdp, function ( sdp ) {
+            // send back results to the sender
+            callback(null, sdp);
+
+            addNodeId(params.id);
+
+            peer.peer.onicecandidate = function ( event ) {
+                if ( event.candidate ) {
+                    //socket.send(JSON.stringify(event.candidate));
+                    app.wamp.call('ice', {id: params.id, candidate: event.candidate});
+                }
+            };
+        });
     }
 });
+
+app.wamp.addListener('ice', function ( params ) {
+    //console.log(params);
+    peer.addIceCandidate(params.candidate);
+});
+
+page.add(
+    page.nodeList = new List({
+        $node: window.pmNodeList,
+        data: app.nodes.slice()
+        //parent: this,
+        //wamp: this.wamp
+    })
+);
+
+page.add(new Button({
+    $node: window.pmBtnDisconnect,
+    value: 'Disconnect',
+    events: {
+        click: function () {
+            window.nodeId.classList.remove('online');
+            app.wamp.socket.onclose = null;
+            app.wamp.socket.close();
+        }
+    }
+}));
+
+page.add(new Button({
+    $node: window.pmBtnAddNode,
+    value: 'Add node',
+    events: {
+        click: function () {
+            var id = prompt('Please enter the node id to link with.');
+
+            if ( id ) {
+                connectNode(id);
+            }
+        }
+    }
+}));
+
+
+setTimeout(function () {
+    app.nodes.forEach(function ( id ) {
+        //page.nodeList.add({data: id});
+        connectNode(id);
+    });
+}, 500);
 
 
 // public

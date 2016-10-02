@@ -1,87 +1,35 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>FortNotes Web Client (development build)</title>
+        <title>fortnotes-client</title>
         <meta charset="utf-8">
         <meta name="keywords" content="security online password manager AES RSA encryption">
-        <meta name="description" content="Web application to work with the FortNotes system">
-        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans">
+        <meta name="description" content="FortNotes browser client.">
         <link rel="icon" type="image/png" href="img/favicon.png">
-        <link rel="stylesheet" type="text/css" href="css/develop.css">
+        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans">
+        <link rel="stylesheet" href="css/develop.sdk.css">
+        <link rel="stylesheet" href="css/develop.app.css">
     </head>
     <body>
-        <!-- top-level page block (visible by default)-->
-        <div id="pageInit" class="component page active">
-            <table>
-                <tr>
-                    <td class="header">FortNotes Online Password Manager</td>
-                </tr>
-                <tr>
-                    <td class="body">Loading ...</td>
-                </tr>
-                <tr>
-                    <td class="footer"><span class="title">version</span><span class="value">2.0.0</span></td>
-                </tr>
-            </table>
-        </div>
+        <!--include pages/init-->
+        <!--include pages/account-->
         <!-- top-level page block-->
-        <div id="pageAccount" class="component page">
+        <div id="pageMain">
             <table>
                 <tr>
                     <td class="header">FortNotes Online Password Manager</td>
                 </tr>
                 <tr>
                     <td class="body">
-                        <!--#pageAccountWizard-->
-                        <div id="pageAccountStep1" class="step">
-                            <div class="title">New account creation (step 1 of 3)</div>
-                            <div class="content">
-                                <div class="description">Select a server to store your encrypted data<br><br>
-                                    <table>
-                                        <tr>
-                                            <td class="radio">
-                                                <input type="radio" name="apiServer" value="default" checked>
-                                            </td>
-                                            <td colspan="2">Main FortNotes server (api.fortnotes.com) via secure connection</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="radio">
-                                                <input type="radio" name="apiServer" value="custom">
-                                            </td>
-                                            <td>Enter your own server:</td>
-                                            <td>
-                                                <input type="text" value="" class="server">
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="buttons">
-                                <div id="pageAccountStep1Next"></div>
-                            </div>
-                        </div>
-                        <div id="pageAccountStep2" class="step">
-                            <div class="content">step 2</div>
-                        </div>
-                        <div id="pageAccountStep3" class="step">
-                            <div class="content">step 3</div>
-                        </div>
+                        <div id="pmBtnDisconnect"></div>
+                        <div id="pmBtnAddNode"></div>
+                        <div id="pmNodeList"></div>
                     </td>
                 </tr>
                 <tr>
-                    <td class="footer"><span class="title">version</span><span class="value">2.0.0</span></td>
-                </tr>
-            </table>
-        </div>
-        <!-- top-level page block-->
-        <div id="pageMain" class="component page">
-            <table>
-                <tr>
-                    <td class="menu">
-                        menu
-
+                    <td class="footer">
+                        <div id="nodeId"></div>
                     </td>
-                    <td class="body">body</td>
                 </tr>
             </table>
         </div>
@@ -89,6 +37,7 @@
         <!--include pages/list-->
         <!--include pages/edit-->
         <!--include pages/menu-->
+        <!--include modals/wizard-->
         <script type="text/javascript" src="js/develop.js" async="async"></script>
     </body>
 </html>

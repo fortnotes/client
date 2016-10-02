@@ -1,0 +1,33 @@
+// @author Stanislav Kalashnik <darkpark.main@gmail.com>
+// @license GNU GENERAL PUBLIC LICENSE Version 3
+
+.app-component-node-list {
+    border: 1px solid $colorBorderDark;
+
+    .item {
+        height: $itemHeight;
+        line-height: $itemHeight;
+        padding: 0 20px 0 5px;
+        border-bottom: 1px solid $colorBorderLight;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &:hover {
+            background-color: $colorHover;
+        }
+
+        &:last-of-type {
+            border-bottom: none;
+        }
+
+        &.running {
+            background-color: #f4fff4;
+        }
+
+        &.ok {
+            background: url("https://cdn0.iconfinder.com/data/icons/very-basic-android-l-lollipop-icon-pack/24/checkmark-16.png") no-repeat right center;
+        }
+    }
+}

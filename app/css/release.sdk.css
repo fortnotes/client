@@ -1,0 +1,97 @@
+/* spa-app: release */
+html, body {
+    height: 100%;
+    width: 100%;
+    font-size: 14px;
+    font-family: arial, sans-serif;
+    overflow: hidden;
+    margin: 0;
+    padding: 0; }
+
+table {
+    border: 0;
+    border-collapse: collapse;
+    border-spacing: 0; }
+    table td {
+        padding: 0; }
+
+.maxh {
+    height: 100%; }
+
+.maxw {
+    width: 100%; }
+
+a {
+    text-decoration: none; }
+
+.spa-component-button {
+    box-sizing: border-box;
+    background-color: #dde9ff;
+    display: inline-table;
+    height: 32px;
+    cursor: pointer; }
+    .spa-component-button.hidden {
+        display: none; }
+    .spa-component-button:hover {
+        background-color: #bbd3ff; }
+    .spa-component-button.focus {
+        background-color: #bbd3ff; }
+    .spa-component-button.click {
+        background-color: #a8c9ff; }
+    .spa-component-button .icon {
+        height: 32px;
+        width: 32px;
+        display: table-cell;
+        background: no-repeat center center; }
+    .spa-component-button .text {
+        display: table-cell;
+        padding: 2px 10px;
+        vertical-align: middle;
+        text-align: center; }
+        .spa-component-button .text:empty {
+            padding: 0; }
+
+.spa-component-list {
+    box-sizing: border-box;
+    background-color: #333;
+    width: 100%; }
+    .spa-component-list.hidden {
+        display: none; }
+    .spa-component-list > .item {
+        cursor: pointer;
+        padding: 0 10px;
+        vertical-align: middle;
+        height: 32px;
+        line-height: 32px; }
+        .spa-component-list > .item.mark {
+            background-color: green;
+            color: black; }
+        .spa-component-list > .item.focus {
+            background-color: orange;
+            color: black; }
+        .spa-component-list > .item.focus.mark {
+            background-color: #ae7200;
+            color: white; }
+    .spa-component-list.horizontal {
+        display: table;
+        table-layout: fixed;
+        width: 100%; }
+        .spa-component-list.horizontal > .item {
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle; }
+
+.spa-component-page {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    visibility: hidden;
+    overflow: hidden; }
+    .spa-component-page.hidden {
+        display: none; }
+    .spa-component-page.active {
+        visibility: inherit; }
+
