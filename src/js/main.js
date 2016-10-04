@@ -38,12 +38,14 @@ app.wamp = new Wamp(
 );
 
 app.wamp.onopen = function () {
+    var time = Date.now();
+
     debug.info('wamp open ' + app.wamp.socket.url, null, {tags: ['open', 'wamp']});
 
     window.nodeId.classList.add('online');
 
     app.wamp.call('ping', {}, function ( error, result ) {
-        console.log(error, result);
+        console.log(error, result, Date.now() - time);
     });
 };
 
