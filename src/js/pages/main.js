@@ -14,22 +14,24 @@ var app    = require('spa-app'),
     peer;
 
 
-function addNodeId ( id ) {
-    if ( id && app.nodes.indexOf(id) === -1 ) {
-        app.nodes.push(id);
-        localStorage.setItem('nodes', JSON.stringify(app.nodes));
-    }
+function addNodeId ( id, peer ) {
+    app.nodes[id] = app.nodes[id] || {};
+    app.nodes[id] = {peer: peer};
+
+    //if ( id && !app.nodes[id] ) {
+    localStorage.setItem('nodes', JSON.stringify(Object.keys(app.nodes)));
+    //}
 }
 
 function connectNode ( id ) {
-    peer = rtc.Offerer.createOffer(function ( sdp ) {
+    var peer = rtc.Offerer.createOffer(function ( sdp ) {
         app.wamp.call('connect', {id: id, sdp: sdp}, function ( error, result ) {
             //console.log(error, result);
             if ( error ) {
                 console.log('was not able to connect to ', id);
             } else {
                 peer.setRemoteDescription(result);
-                addNodeId(id);
+                addNodeId(id, peer);
             }
         });
     });
@@ -44,12 +46,14 @@ function connectNode ( id ) {
 
 
 app.wamp.addListener('connect', function ( params, callback ) {
-    if ( app.nodes.indexOf(params.id) !== -1 || confirm('Do you want to add new node with id ' + params.id) ) {
+    var peer;
+
+    if ( app.nodes[params.id] || confirm('Do you want to add new node with id ' + params.id) ) {
         peer = rtc.Answerer.createAnswer(params.sdp, function ( sdp ) {
             // send back results to the sender
             callback(null, sdp);
 
-            addNodeId(params.id);
+            addNodeId(params.id, peer);
 
             peer.peer.onicecandidate = function ( event ) {
                 if ( event.candidate ) {
@@ -63,17 +67,19 @@ app.wamp.addListener('connect', function ( params, callback ) {
 
 app.wamp.addListener('ice', function ( params ) {
     //console.log(params);
-    peer.addIceCandidate(params.candidate);
+    if ( app.nodes[params.id] && app.nodes[params.id].peer ) {
+        app.nodes[params.id].peer.addIceCandidate(params.candidate);
+    }
 });
 
-page.add(
-    page.nodeList = new List({
-        $node: window.pmNodeList,
-        data: app.nodes.slice()
-        //parent: this,
-        //wamp: this.wamp
-    })
-);
+// page.add(
+//     page.nodeList = new List({
+//         $node: window.pmNodeList,
+//         data: app.nodes.slice()
+//         //parent: this,
+//         //wamp: this.wamp
+//     })
+// );
 
 page.add(new Button({
     $node: window.pmBtnDisconnect,
@@ -83,6 +89,17 @@ page.add(new Button({
             window.nodeId.classList.remove('online');
             app.wamp.socket.onclose = null;
             app.wamp.socket.close();
+        }
+    }
+}));
+
+page.add(new Button({
+    $node: window.pmBtnRemoveNodes,
+    value: 'Remove nodes',
+    events: {
+        click: function () {
+            localStorage.setItem('nodes', '[]');
+            console.log('all nodes are removed!');
         }
     }
 }));
@@ -103,11 +120,11 @@ page.add(new Button({
 
 
 setTimeout(function () {
-    app.nodes.forEach(function ( id ) {
+    Object.keys(app.nodes).forEach(function ( id ) {
         //page.nodeList.add({data: id});
         connectNode(id);
     });
-}, 500);
+}, Math.floor(Math.random() * 1000));
 
 
 // public

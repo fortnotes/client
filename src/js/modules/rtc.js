@@ -38,8 +38,8 @@ var Offerer = {
     createOffer: function ( callback ) {
         var peer = new RTCPeerConnection(servers, mediaConstraints);
 
-        offererDataChannel = peer.createDataChannel('channel', {reliable: true});
-        setChannelEvents(offererDataChannel);
+        this.dc = peer.createDataChannel('channel', {reliable: true});
+        setChannelEvents(this.dc);
 
         peer.onsignalingstatechange = function ( event ) {
             console.log('Offerer: signaling state change - ' + peer.signalingState);
@@ -92,11 +92,13 @@ var Offerer = {
 
 var Answerer = {
     createAnswer: function ( offerSDP, callback ) {
-        var peer = new RTCPeerConnection(servers, mediaConstraints);
+        var peer = new RTCPeerConnection(servers, mediaConstraints),
+            self = this;
 
         peer.ondatachannel = function ( event ) {
-            answererDataChannel = event.channel;
-            setChannelEvents(answererDataChannel);
+            self.dc = event.channel;
+            setChannelEvents(self.dc);
+
         };
 
         peer.onsignalingstatechange = function ( event ) {
@@ -157,7 +159,7 @@ function setChannelEvents ( channel ) {
     channel.onmessage = function ( event ) {
         var data = JSON.parse(event.data);
         console.log(data);
-        window.messages.value += '<< ' + data + '\n';
+        //window.messages.value += '<< ' + data + '\n';
     };
     channel.onopen = function () {
         console.log('data channel open');

@@ -7,7 +7,12 @@
 var app  = require('spa-app'),
     Wamp = require('spa-wamp');
 
-app.nodes = JSON.parse(localStorage.getItem('nodes')) || [];
+app.nodes = {};
+
+(JSON.parse(localStorage.getItem('nodes')) || []).map(function ( node ) {
+    console.log('found node: ' + node);
+    app.nodes[node] = {};
+});
 
 app.nodeId = localStorage.getItem('nodeId');
 if ( !app.nodeId ) {
