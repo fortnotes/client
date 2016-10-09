@@ -10,14 +10,20 @@ html
 
         link(rel='stylesheet', type='text/css', href='//fonts.googleapis.com/css?family=Open+Sans')
 
+        style(type='text/css').
+            .loading {
+                background: url('img/loading.gif') center no-repeat;
+            }
+
         if develop
             link(rel="stylesheet" href="css/develop.sdk.css")
             link(rel="stylesheet" href="css/develop.app.css")
         else
             link(rel="stylesheet" href="css/release.sdk.css")
             link(rel="stylesheet" href="css/release.app.css")
-    body
-        //include pages/init
+
+    body.loading
+        include pages/init
         //include pages/account
         include pages/main
         //include pages/auth

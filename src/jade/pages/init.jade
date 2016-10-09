@@ -1,14 +1,11 @@
 // top-level page block
-#pageInit
+#pageInit.invisible
 
     table
         tr
             td.header.
                 FortNotes Online Password Manager
         tr
-            td.body.
-                Loading ...
+            td.body
         tr
-            td.footer
-                span.title v
-                span.value=package.version
+            td.footer=package.version

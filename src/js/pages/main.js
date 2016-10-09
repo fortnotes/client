@@ -9,13 +9,14 @@ var app    = require('spa-app'),
     List   = require('spa-component-list'),
     Page   = require('spa-component-page'),
     rtc    = require('../modules/rtc'),
+    Node   = require('../modules/node'),
     NodeList = require('./../modules/node.list'),
     page   = new Page({$node: window.pageMain}),
     peer;
 
 
 function addNodeId ( id, peer ) {
-    app.nodes[id] = app.nodes[id] || {};
+    //app.nodes[id] = app.nodes[id] || {};
     app.nodes[id] = {peer: peer};
 
     //if ( id && !app.nodes[id] ) {
@@ -23,52 +24,144 @@ function addNodeId ( id, peer ) {
     //}
 }
 
+
+function onNodeOpen ( event ) {
+    console.log('data channel open');
+}
+
+
 function connectNode ( id ) {
-    var peer = rtc.Offerer.createOffer(function ( sdp ) {
+    var node = new Node({
+        id: id,
+        rtp: app.config.rtp
+    });
+
+    // send any ice candidates to the other peer
+    node.pc.onicecandidate = function ( event ) {
+        if ( event.candidate ) {
+            //console.log(event.candidate);
+            //socket.send(JSON.stringify(event.candidate));
+            console.log('%s: send ice candidate', node.id);
+            app.wamp.call('ice', {id: id, candidate: event.candidate});
+        }
+    };
+
+    node.createOffer(function ( sdp ) {
         app.wamp.call('connect', {id: id, sdp: sdp}, function ( error, result ) {
             //console.log(error, result);
             if ( error ) {
                 console.log('was not able to connect to ', id);
             } else {
-                peer.setRemoteDescription(result);
-                addNodeId(id, peer);
+                //console.log('got answer');
+                node.acceptAnswer(result);
+                //peer.setRemoteDescription(result);
+                //addNodeId(id, peer);
+
+
             }
         });
     });
 
-    peer.peer.onicecandidate = function ( event ) {
-        if ( event.candidate ) {
-            //socket.send(JSON.stringify(event.candidate));
-            app.wamp.call('ice', {id: id, candidate: event.candidate});
-        }
-    };
+    node.addListener('open', function () {
+        console.log('data channel open');
+
+        // node.wamp.addListener('onNodeName', function ( event ) {
+        //     console.log(event);
+        // });
+
+        setTimeout(function () {
+            node.wamp.call('onNodeName', {name: app.nodeName});
+        }, 1000);
+    });
+
+    app.nodes[id] = node;
+
+    // var peer = rtc.Offerer.createOffer(function ( sdp ) {
+    //     app.wamp.call('connect', {id: id, sdp: sdp}, function ( error, result ) {
+    //         //console.log(error, result);
+    //         if ( error ) {
+    //             console.log('was not able to connect to ', id);
+    //         } else {
+    //             peer.setRemoteDescription(result);
+    //             addNodeId(id, peer);
+    //         }
+    //     });
+    // });
+	//
+    // peer.peer.onicecandidate = function ( event ) {
+    //     if ( event.candidate ) {
+    //         //socket.send(JSON.stringify(event.candidate));
+    //         app.wamp.call('ice', {id: id, candidate: event.candidate});
+    //     }
+    // };
 }
 
 
 app.wamp.addListener('connect', function ( params, callback ) {
-    var peer;
+    var node = new Node({
+        id: params.id,
+        rtp: app.config.rtp
+    });
 
-    if ( app.nodes[params.id] || confirm('Do you want to add new node with id ' + params.id) ) {
-        peer = rtc.Answerer.createAnswer(params.sdp, function ( sdp ) {
+    if ( params.id in app.nodes || confirm('Do you want to add new node with id ' + params.id) ) {
+        // send any ice candidates to the other peer
+        node.pc.onicecandidate = function ( event ) {
+            if ( event.candidate ) {
+                console.log('%s: send ice candidate', node.id);
+                app.wamp.call('ice', {id: params.id, candidate: event.candidate});
+            }
+        };
+
+        node.createAnswer(params.sdp, function ( sdp ) {
             // send back results to the sender
             callback(null, sdp);
 
-            addNodeId(params.id, peer);
+            //addNodeId(params.id, peer);
+        });
 
-            peer.peer.onicecandidate = function ( event ) {
-                if ( event.candidate ) {
-                    //socket.send(JSON.stringify(event.candidate));
-                    app.wamp.call('ice', {id: params.id, candidate: event.candidate});
-                }
+        node.addListener('open', function () {
+            console.log('data channel open');
+
+            node.wamp.addListener('onNodeName', function ( event ) {
+                console.log(event);
+            });
+
+            //node.wamp.call('onNodeName', {name: app.nodeName});
+            node.wamp.socket.onmessage = function ( event ) {
+                console.log(event);
             };
         });
+
+        app.nodes[params.id] = node;
+
+        //if ( !(params.id in app.nodes) ) {
+        localStorage.setItem('nodes', JSON.stringify(Object.keys(app.nodes)));
+        //}
     }
+
+    // var peer;
+	//
+    // if ( app.nodes[params.id] || confirm('Do you want to add new node with id ' + params.id) ) {
+    //     peer = rtc.Answerer.createAnswer(params.sdp, function ( sdp ) {
+    //         // send back results to the sender
+    //         callback(null, sdp);
+	//
+    //         addNodeId(params.id, peer);
+	//
+    //         peer.peer.onicecandidate = function ( event ) {
+    //             if ( event.candidate ) {
+    //                 //socket.send(JSON.stringify(event.candidate));
+    //                 app.wamp.call('ice', {id: params.id, candidate: event.candidate});
+    //             }
+    //         };
+    //     });
+    // }
 });
 
 app.wamp.addListener('ice', function ( params ) {
     //console.log(params);
-    if ( app.nodes[params.id] && app.nodes[params.id].peer ) {
-        app.nodes[params.id].peer.addIceCandidate(params.candidate);
+    if ( app.nodes[params.id] /*&& app.nodes[params.id].peer*/ ) {
+        app.nodes[params.id].addIceCandidate(params.candidate);
     }
 });
 
@@ -86,7 +179,7 @@ page.add(new Button({
     value: 'Disconnect',
     events: {
         click: function () {
-            window.nodeId.classList.remove('online');
+            window.serverAddressValue.parentNode.classList.remove('online');
             app.wamp.socket.onclose = null;
             app.wamp.socket.close();
         }
@@ -113,18 +206,45 @@ page.add(new Button({
 
             if ( id ) {
                 connectNode(id);
+                localStorage.setItem('nodes', JSON.stringify(Object.keys(app.nodes)));
             }
         }
     }
 }));
 
 
-setTimeout(function () {
+app.addListener('wamp:open', function () {
+    window.serverAddressValue.parentNode.classList.add('online');
+
+    //setTimeout(function () {
     Object.keys(app.nodes).forEach(function ( id ) {
         //page.nodeList.add({data: id});
         connectNode(id);
     });
-}, Math.floor(Math.random() * 1000));
+    //}, Math.floor(Math.random() * 1000));
+
+    // remove loading gif
+    document.body.classList.remove('loading');
+
+    // show this page
+    app.route(page);
+});
+
+
+app.addListener('wamp:close', function () {
+    window.serverAddressValue.parentNode.classList.remove('online');
+});
+
+
+app.addListener('wamp:auth:error', function () {
+    alert('Fatal authentication error.');
+});
+
+
+window.serverAddressValue.innerText = 'wss.fortnotes.com';
+window.serverAddressValue.href = 'https://wss.fortnotes.com/';
+window.nodeIdValue.innerText = app.nodeId;
+window.nodeNameValue.innerText = app.nodeName;
 
 
 // public

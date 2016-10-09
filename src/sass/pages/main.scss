@@ -28,26 +28,55 @@
     .footer {
         //padding: unit(@fontSize, px);
         //line-height   : unit(@fontSize * 2, px);
-        text-align: right;
+        //text-align: right;
         //font-size     : 80%;
-        color: grey;
-        .value {
-            color: black;
-            padding-left: $fontSize/2;
+
+        .block {
+            height: 32px;
+            line-height: 32px;
+            color: grey;
+            display: inline-block;
+
+            > div {
+                display: inline-block;
+            }
+
+            :first-child {
+                font-weight: bold;
+                padding-left: 22px;
+                padding-right: 5px;
+                float: left;
+            }
+
+            &.version {
+                float: right;
+                font-weight: normal;
+                background: url("../img/github.png") no-repeat left center;
+
+                :first-child {
+                    padding-left: 32px;
+                }
+            }
+
+            &.server {
+                background: url("https://cdn3.iconfinder.com/data/icons/sweetiev3/png-8/16-circle-red.png") no-repeat left center;
+
+                &.online {
+                    background-image: url("https://cdn3.iconfinder.com/data/icons/sweetiev3/png-24/16-circle-green.png");
+                }
+            }
+        }
+
+        .source {
+            float: right;
+            height: 32px;
+            line-height: 32px;
+            padding-left: 32px;
+            background: url("../img/github.png") no-repeat left center;
         }
     }
 }
 
-#nodeId {
-    height: 32px;
-    line-height: 32px;
-    padding-right: 30px;
-    background: url("https://cdn3.iconfinder.com/data/icons/sweetiev3/png-8/16-circle-red.png") no-repeat right center;
-
-    &.online {
-        background-image: url("https://cdn3.iconfinder.com/data/icons/sweetiev3/png-24/16-circle-green.png");
-    }
-}
 
 .spa-component-list {
     background-color: #eee;

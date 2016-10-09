@@ -7,4 +7,15 @@
 'use strict';
 
 // public
-module.exports = {};
+module.exports = {
+    nodeIdSize: 16,
+    nodeKeySize: 32,
+
+    // RTCConfiguration
+    rtc: {
+        iceServers: [
+            {urls: 'stun:stun.services.mozilla.com'},
+            {urls: 'stun:stun.l.google.com:19302'}
+        ]
+    }
+};

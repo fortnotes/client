@@ -1,5 +1,5 @@
 // top-level page block
-#pageMain
+#pageMain.invisible
 
     table
         tr
@@ -13,4 +13,15 @@
                 #pmNodeList
         tr
             td.footer
-                #nodeId
+                .block.version
+                    div version:
+                    a(href='https://github.com/fortnotes/client')=package.version
+                .block.server
+                    #serverAddressLabel server:
+                    a#serverAddressValue (n/a)
+                .block
+                    #nodeIdLabel node id:
+                    #nodeIdValue (n/a)
+                .block
+                    #nodeNameLabel node name:
+                    #nodeNameValue (n/a)
