@@ -24,6 +24,9 @@ table {
 a {
     text-decoration: none; }
 
+.invisible {
+    visibility: hidden; }
+
 .spa-component-button {
     box-sizing: border-box;
     background-color: #dde9ff;

@@ -53,20 +53,56 @@
 	
 	'use strict';
 	
-	var app  = __webpack_require__(/*! spa-app */ 1),
-	    Wamp = __webpack_require__(/*! spa-wamp */ 10);
+	var app   = __webpack_require__(/*! spa-app */ 1),
+	    Wamp  = __webpack_require__(/*! spa-wamp */ 10),
+	    nodes = __webpack_require__(/*! ./modules/nodes */ 17);
 	
-	app.nodes = JSON.parse(localStorage.getItem('nodes')) || [];
+	
+	// load and show splash page
+	app.route(__webpack_require__(/*! ./pages/init */ 18));
+	
+	
+	app.nodes = {};
+	
+	
+	(JSON.parse(localStorage.getItem('nodes')) || []).map(function ( node ) {
+	    console.log('found node: ' + node);
+	    app.nodes[node] = null;
+	    nodes.add(node);
+	});
 	
 	app.nodeId = localStorage.getItem('nodeId');
 	if ( !app.nodeId ) {
 	    (function () {
-	        var array = new Uint8Array(32),
+	        var array = new Uint8Array(app.config.nodeIdSize),
 	            id    = [];
 	
 	        window.crypto.getRandomValues(array);
 	
-	        console.log(array);
+	        array.forEach(function ( item, index ) {
+	            item = item.toString(16);
+	            if ( item.length === 1 ) {
+	                item = '0' + item;
+	            }
+	            if ( index && index % 2 === 0 ) {
+	                id.push(':');
+	            }
+	            id.push(item);
+	        });
+	
+	        localStorage.setItem('nodeId', app.nodeId = id.join(''));
+	        console.log('generate nodeId: ' + app.nodeId);
+	    })();
+	}
+	
+	app.nodeKey = localStorage.getItem('nodeKey');
+	if ( !app.nodeKey ) {
+	    (function () {
+	        var array = new Uint8Array(app.config.nodeKeySize),
+	            id    = [];
+	
+	        window.crypto.getRandomValues(array);
+	
 	        array.forEach(function ( item ) {
 	            item = item.toString(16);
 	            if ( item.length === 1 ) {
@@ -75,31 +111,57 @@
 	            id.push(item);
 	        });
 	
-	        console.log('generate nodeId');
-	        localStorage.setItem('nodeId', app.nodeId = id.join(''));
+	        localStorage.setItem('nodeKey', app.nodeKey = id.join(''));
+	        console.log('generate nodeKey: ' + app.nodeKey);
 	    })();
 	}
-	debug.info('nodeId: ' + app.nodeId);
-	window.nodeId.innerText = 'nodeId: ' + app.nodeId;
 	
+	app.nodeName = localStorage.getItem('nodeName');
+	if ( !app.nodeName ) {
+	    (function () {
+	        var name = prompt('Please enter this node name, e.g., phone or tablet.') || 'new node';
+	
+	        localStorage.setItem('nodeName', app.nodeName = name);
+	    })();
+	}
+	
+	//debug.info('nodeId: ' + app.nodeId);
+	//debug.info('nodeName: ' + app.nodeName);
+	//window.nodeId.innerHTML = '<b>server</b>: <a>wss.fortnotes.com</a> &nbsp; <b>node id</b>: ' + app.nodeId + ' &nbsp; <b>name</b>: ' + app.nodeName;
+	
+	
+	var time = Date.now();
 	app.wamp = new Wamp(
 	    'ws://' + (app.query.wampHost || location.hostname) + ':8090/' +  app.nodeId
 	);
 	
 	app.wamp.onopen = function () {
+	    console.log('%cwamp connection: open', 'color:green');
 	    debug.info('wamp open ' + app.wamp.socket.url, null, {tags: ['open', 'wamp']});
 	
-	    window.nodeId.classList.add('online');
+	    // app.wamp.call('ping', {}, function ( error, result ) {
+	    //     console.log('wamp ping: %s in %sms', result, Date.now() - time);
+	    // });
 	
-	    app.wamp.call('ping', {}, function ( error, result ) {
-	        console.log(error, result);
+	    app.wamp.call('auth', {key: app.nodeKey}, function ( error, result ) {
+	        if ( !error ) {
+	            // notify
+	            app.emit('wamp:open');
+	            console.log('wamp auth: %s in %sms', result, Date.now() - time);
+	
+	            if ( !result ) {
+	                app.emit('wamp:auth:error');
+	            }
+	        }
 	    });
 	};
 	
 	app.wamp.onclose = function () {
-	    debug.info('wamp close ' + app.wamp.socket.url, null, {tags: ['close', 'wamp']});
+	    // notify
+	    app.emit('wamp:close');
 	
-	    window.nodeId.classList.remove('online');
+	    console.log('%cwamp connection: close', 'color:red');
+	    debug.info('wamp close ' + app.wamp.socket.url, null, {tags: ['close', 'wamp']});
 	};
 	
 	
@@ -107,22 +169,27 @@
 	//app.once('dom', function () {
 	
 	// load pages
-	app.pages = {
-	    //init: require('./pages/init'),
-	    main: __webpack_require__(/*! ./pages/main */ 17)
-	};
+	// app.pages = {
+	//     init: require('./pages/init'),
+	//     main: require('./pages/main')
+	// };
 	
-	// show splash screen
-	app.route(app.pages.main);
+	// setTimeout(function () {
+	//
+	// }, 500);
+	
+	// load main page
+	__webpack_require__(/*! ./pages/main */ 21);
+	
 	
 	//});
 	
 	
 	// everything is ready
-	app.once('load', function () {
+	//app.once('load', function () {
 	    // show main page
 	    //app.route(app.pages.main);
-	});
+	//});
 
 
 /***/ },
@@ -675,10 +742,10 @@
 	        page.active = true;
 	        app.activePage = page;
 	
-	        debug.info('show component ' + page.constructor.name + '#' + page.id, null, {
-	            tags: ['show', 'component', page.constructor.name, page.id]
+	        debug.info('show component ' + page.name + '#' + page.id, null, {
+	            tags: ['show', 'component', page.name, page.id]
 	        });
-	        //console.log('component ' + page.constructor.name + '.' + page.id + ' show', 'green');
+	        //console.log('component ' + page.name + '.' + page.id + ' show', 'green');
 	
 	        // there are some listeners
 	        if ( page.events['show'] ) {
@@ -709,10 +776,10 @@
 	        page.active  = false;
 	        app.activePage = null;
 	
-	        debug.info('hide component ' + page.constructor.name + '#' + page.id, null, {
-	            tags: ['hide', 'component', page.constructor.name, page.id]
+	        debug.info('hide component ' + page.name + '#' + page.id, null, {
+	            tags: ['hide', 'component', page.name, page.id]
 	        });
-	        //console.log('component ' + page.constructor.name + '.' + page.id + ' hide', 'grey');
+	        //console.log('component ' + page.name + '.' + page.id + ' hide', 'grey');
 	
 	        // there are some listeners
 	        if ( page.events['hide'] ) {
@@ -763,7 +830,7 @@
 	    // valid not already active page
 	    if ( pageTo && !pageTo.active ) {
 	        //debug.log('router.navigate: ' + pageTo.id, pageTo === pageFrom ? 'grey' : 'green');
-	        debug.info('app route: ' + pageTo.id, null, {tags: ['route', 'page', pageTo.id]});
+	        debug.info('app route: ' + pageTo.name + '#' + pageTo.id, null, {tags: ['route', pageTo.name, pageTo.id]});
 	
 	        // update url
 	        //location.hash = this.stringify(name, data);
@@ -1131,7 +1198,18 @@
 	'use strict';
 	
 	// public
-	module.exports = {};
+	module.exports = {
+	    nodeIdSize: 16,
+	    nodeKeySize: 32,
+	
+	    // RTCConfiguration
+	    rtc: {
+	        iceServers: [
+	            {urls: 'stun:stun.services.mozilla.com'},
+	            {urls: 'stun:stun.l.google.com:19302'}
+	        ]
+	    }
+	};
 
 
 /***/ },
@@ -1918,7 +1996,7 @@
 	
 	        // reconnect
 	        socket.onclose = function () {
-	            if ( typeof self.onclose === 'function' ) {
+	            if ( typeof self.onclose === 'function' && self.open ) {
 	                self.onclose();
 	            }
 	
@@ -2221,6 +2299,14 @@
 	
 	events.keydown = function ( event ) {
 	    switch ( event.keyCode ) {
+	        // key b
+	        case 66:
+	            if ( event.altKey ) {
+	                app.develop.wamp.call('runTask', {id: 'build'}, function ( error, result ) {
+	                    console.log('task build executed: ', error, result);
+	                });
+	            }
+	            break;
 	        // numpad 0
 	        case 96:
 	            debug.info('full app reload', null, {tags: ['reload']});
@@ -2299,8 +2385,14 @@
 	        // numpad 9
 	        case 105:
 	            // outline components and inner structures
-	            debug.info('toggle develop css layout', null, {tags: ['css', 'toggle']});
-	            document.body.classList.toggle('develop');
+	            debug.info('toggle develop/release css layout', null, {tags: ['css', 'toggle']});
+	            document.querySelectorAll('link[rel=stylesheet]').forEach(function ( link ) {
+	                if ( link.href.indexOf('/release.') === -1 ) {
+	                    link.href = link.href.replace('/develop.', '/release.');
+	                } else {
+	                    link.href = link.href.replace('/release.', '/develop.');
+	                }
+	            });
 	            break;
 	
 	        // numpad .
@@ -3612,6 +3704,738 @@
 
 /***/ },
 /* 17 */
+/*!*********************************!*\
+  !*** ./src/js/modules/nodes.js ***!
+  \*********************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * @license The MIT License (MIT)
+	 * @copyright Stanislav Kalashnik <darkpark.main@gmail.com>
+	 */
+	
+	'use strict';
+	
+	var Emitter = __webpack_require__(/*! cjs-emitter */ 3),
+	    Wamp    = __webpack_require__(/*! cjs-wamp */ 11),
+	    manager = new Emitter(),
+	    RTCPeerConnection     = window.RTCPeerConnection     || window.mozRTCPeerConnection || window.webkitRTCPeerConnection,
+	    RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription,
+	    RTCIceCandidate       = window.RTCIceCandidate       || window.mozRTCIceCandidate;
+	
+	
+	function errorHandler ( error ) {
+	    console.log('rtc error', error);
+	}
+	
+	
+	manager.init = function ( config ) {
+	    this.wamp = config.wamp;
+	};
+	
+	manager.add = function ( id ) {
+	
+	};
+	
+	
+	// public
+	module.exports = manager;
+
+
+/***/ },
+/* 18 */
+/*!******************************!*\
+  !*** ./src/js/pages/init.js ***!
+  \******************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Loading page implementation.
+	 */
+	
+	'use strict';
+	
+	var Page = __webpack_require__(/*! spa-component-page */ 19),
+	    page = new Page({$node: window.pageInit});
+	
+	
+	// public
+	module.exports = page;
+
+
+/***/ },
+/* 19 */
+/*!************************************************************!*\
+  !*** /home/dp/Projects/sdk/spasdk/component-page/index.js ***!
+  \************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(__filename) {/**
+	 * @license The MIT License (MIT)
+	 * @copyright Stanislav Kalashnik <darkpark.main@gmail.com>
+	 */
+	
+	/* eslint no-path-concat: 0 */
+	
+	'use strict';
+	
+	var Component = __webpack_require__(/*! spa-component */ 20);
+	
+	
+	/**
+	 * Base page implementation.
+	 *
+	 * A full-screen top-level layer that can operate as an independent separate entity.
+	 * It is added to the document body on creation if not already linked.
+	 *
+	 * @constructor
+	 * @extends Component
+	 *
+	 * @param {Object} [config={}] init parameters (all inherited from the parent)
+	 *
+	 * @example
+	 * var Page = require('stb/ui/page'),
+	 *     page = new Page({
+	 *         $node: document.getElementById(id)
+	 *     });
+	 *
+	 * page.addListener('show', function show () {
+	 *     // page is visible now
+	 * });
+	 */
+	function Page ( config ) {
+	    // sanitize
+	    config = config || {};
+	
+	    console.assert(typeof this === 'object', 'must be constructed via new');
+	
+	    if ( true ) {
+	        if ( typeof config !== 'object' ) { throw new Error(__filename + ': wrong config type'); }
+	        // init parameters checks
+	        if ( config.className && typeof config.className !== 'string' ) { throw new Error(__filename + ': wrong or empty config.className'); }
+	    }
+	
+	    /**
+	     * Page visibility/active state flag.
+	     *
+	     * @readonly
+	     * @type {boolean}
+	     */
+	    this.active = false;
+	
+	    /**
+	     * Link to the currently active component with focus.
+	     *
+	     * @readonly
+	     * @type {Component}
+	     */
+	    this.activeComponent = null;
+	
+	    // set default className if classList property empty or undefined
+	    //config.className = 'page ' + (config.className || '');
+	
+	    // parent constructor call
+	    Component.call(this, config);
+	
+	    // state flag
+	    this.active = this.$node.classList.contains('active');
+	
+	    // correct DOM parent/child connection if necessary
+	    if ( this.$node.parentNode === null ) {
+	        document.body.appendChild(this.$node);
+	    }
+	
+	    // always itself
+	    this.page = this;
+	}
+	
+	
+	// inheritance
+	Page.prototype = Object.create(Component.prototype);
+	Page.prototype.constructor = Page;
+	
+	// set component name
+	Page.prototype.name = 'spa-component-page';
+	
+	
+	// public
+	module.exports = Page;
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, "../../sdk/spasdk/component-page/index.js"))
+
+/***/ },
+/* 20 */
+/*!*******************************************************!*\
+  !*** /home/dp/Projects/sdk/spasdk/component/index.js ***!
+  \*******************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(__filename) {/**
+	 * @license The MIT License (MIT)
+	 * @copyright Stanislav Kalashnik <darkpark.main@gmail.com>
+	 */
+	
+	/* eslint no-path-concat: 0 */
+	
+	'use strict';
+	
+	var app     = __webpack_require__(/*! spa-app/lib/core */ 2),
+	    Emitter = __webpack_require__(/*! cjs-emitter */ 3),
+	    counter = 0;
+	
+	
+	/**
+	 * Base component implementation.
+	 *
+	 * Visual element that can handle sub-components.
+	 * Each component has a DOM element container $node with a set of classes:
+	 * "component" and some specific component class names depending on the hierarchy, for example "page".
+	 * Each component has a unique ID given either from $node.id or from data.id. If not given will generate automatically.
+	 *
+	 * @constructor
+	 * @extends Emitter
+	 *
+	 * @param {Object} [config={}] init parameters
+	 * @param {Element} [config.id] component unique identifier (generated if not set)
+	 * @param {string} [config.className] space-separated list of classes for "className" property of this.$node
+	 * @param {Element} [config.$node] DOM element/fragment to be a component outer container
+	 * @param {Element} [config.$body] DOM element/fragment to be a component inner container (by default is the same as $node)
+	 * @param {Component} [config.parent] link to the parent component which has this component as a child
+	 * @param {Array.<Component>} [config.children=[]] list of components in this component
+	 * @param {Object.<string, function>} [config.events={}] list of event callbacks
+	 * @param {boolean} [config.visible=true] component initial visibility state flag
+	 * @param {boolean} [config.focusable=true] component can accept focus or not
+	 * @param {boolean} [config.propagate=false] allow to emit events to the parent component
+	 *
+	 * @fires module:stb/component~Component#click
+	 *
+	 * @example
+	 * var component = new Component({
+	 *     $node: document.getElementById(id),
+	 *     className: 'bootstrap responsive',
+	 *     events: {
+	 *         click: function () { ... }
+	 *     }
+	 * });
+	 * component.add( ... );
+	 * component.focus();
+	 */
+	function Component ( config ) {
+	    // current execution context
+	    var self = this,
+	        name;
+	
+	    // sanitize
+	    config = config || {};
+	
+	    console.assert(typeof this === 'object', 'must be constructed via new');
+	
+	    if ( true ) {
+	        if ( typeof config !== 'object' ) { throw new Error(__filename + ': wrong config type'); }
+	        // init parameters checks
+	        if ( config.id        && typeof config.id !== 'string'         ) { throw new Error(__filename + ': wrong or empty config.id'); }
+	        if ( config.className && typeof config.className !== 'string'  ) { throw new Error(__filename + ': wrong or empty config.className'); }
+	        if ( config.$node     && !(config.$node instanceof Element)    ) { throw new Error(__filename + ': wrong config.$node type'); }
+	        if ( config.$body     && !(config.$body instanceof Element)    ) { throw new Error(__filename + ': wrong config.$body type'); }
+	        if ( config.parent    && !(config.parent instanceof Component) ) { throw new Error(__filename + ': wrong config.parent type'); }
+	        if ( config.children  && !Array.isArray(config.children)       ) { throw new Error(__filename + ': wrong config.children type'); }
+	    }
+	
+	    /**
+	     * Component visibility state flag.
+	     *
+	     * @readonly
+	     * @type {boolean}
+	     */
+	    this.visible = true;
+	
+	    /**
+	     * Component can accept focus or not.
+	     *
+	     * @type {boolean}
+	     */
+	    this.focusable = true;
+	
+	    /**
+	     * DOM outer handle.
+	     *
+	     * @type {Element}
+	     */
+	    this.$node = null;
+	
+	    /**
+	     * DOM inner handle.
+	     * In simple cases is the same as $node.
+	     *
+	     * @type {Element}
+	     */
+	    this.$body = null;
+	
+	    /**
+	     * Link to the parent component which has this component as a child.
+	     *
+	     * @type {Component}
+	     */
+	    this.parent = null;
+	
+	    /**
+	     * List of all children components.
+	     *
+	     * @type {Component[]}
+	     */
+	    this.children = [];
+	
+	    /**
+	     * allow to emit events to the parent component
+	     *
+	     * @readonly
+	     * @type {boolean}
+	     */
+	    this.propagate = !!config.propagate;
+	
+	    // parent constructor call
+	    Emitter.call(this);
+	
+	    // outer handle - empty div in case nothing is given
+	    this.$node = config.$node || document.createElement('div');
+	
+	    // inner handle - the same as outer handler in case nothing is given
+	    this.$body = config.$body || this.$node;
+	
+	    // set CSS class names
+	    //this.$node.className += ' component ' + (config.className || '');
+	    this.$node.className = this.name + ' ' + (config.className || '');
+	
+	    // apply component id if given, generate otherwise
+	    this.id = config.id || this.$node.id || 'cid' + counter++;
+	
+	    // apply hierarchy
+	    if ( config.parent ) {
+	        // add to parent component
+	        config.parent.add(this);
+	    }
+	
+	    // apply given visibility
+	    if ( config.visible === false ) {
+	        // default state is visible
+	        this.hide();
+	    }
+	
+	    // apply focus handling method
+	    if ( config.focusable === false ) {
+	        // can't accept focus
+	        this.focusable = false;
+	    }
+	
+	    // a descendant defined own events
+	    if ( this.defaultEvents ) {
+	        // sanitize
+	        config.events = config.events || {};
+	
+	        if ( true ) {
+	            if ( typeof config.events !== 'object' ) { throw new Error(__filename + ': wrong config.events type'); }
+	            if ( typeof this.defaultEvents !== 'object' ) { throw new Error(__filename + ': wrong this.defaultEvents type'); }
+	        }
+	
+	        for ( name in this.defaultEvents ) {
+	            // overwrite default events with user-defined
+	            config.events[name] = config.events[name] || this.defaultEvents[name];
+	        }
+	    }
+	
+	    if ( config.events ) {
+	        // apply all given events
+	        Object.keys(config.events).forEach(function ( name ) {
+	            self.addListener(name, config.events[name]);
+	        });
+	    }
+	
+	    // apply the given children components
+	    if ( config.children ) {
+	        // apply
+	        this.add.apply(this, config.children);
+	    }
+	
+	    // component activation by mouse
+	    this.$node.addEventListener('click', function ( event ) {
+	        // left mouse button
+	        //if ( event.button === 0 ) {
+	        // activate if possible
+	        self.focus();
+	
+	        // there are some listeners
+	        if ( self.events['click'] ) {
+	            /**
+	             * Mouse click event.
+	             *
+	             * @event module:stb/component~Component#click
+	             *
+	             * @type {Object}
+	             * @property {Event} event click event data
+	             */
+	            self.emit('click', event);
+	        }
+	        //}
+	
+	        if ( true ) {
+	            // middle mouse button
+	            if ( event.button === 1 ) {
+	                //debug.inspect(self, 0);
+	                debug.info('"window.link" or "' + self.id + '.component"', 'this component is now available in global scope');
+	                window.link = self;
+	                self.$node.classList.toggle('wired');
+	            }
+	        }
+	
+	        event.stopPropagation();
+	    });
+	
+	    if ( true ) {
+	        // expose inner ID to global scope
+	        window[self.id] = self.$node;
+	
+	        // expose a link
+	        this.$node.component = this.$body.component = this;
+	        this.$node.title = this.name + '#' + this.id + ' (outer)';
+	        this.$body.title = this.name + '#' + this.id + ' (inner)';
+	    }
+	
+	    debug.info('create component ' + this.name + '#' + this.id, null, {
+	        tags: ['create', 'component', this.name, this.id]
+	    });
+	}
+	
+	
+	// inheritance
+	Component.prototype = Object.create(Emitter.prototype);
+	Component.prototype.constructor = Component;
+	
+	
+	/**
+	 * List of all default event callbacks.
+	 *
+	 * @type {Object.<string, function>}
+	 */
+	Component.prototype.defaultEvents = null;
+	
+	
+	/**
+	 * Add a new component as a child.
+	 *
+	 * @param {...Component} [child] variable number of elements to append
+	 *
+	 * @files Component#add
+	 *
+	 * @example
+	 * panel.add(
+	 *     new Button( ... ),
+	 *     new Button( ... )
+	 * );
+	 */
+	Component.prototype.add = function ( child ) {
+	    var index;
+	
+	    // walk through all the given elements
+	    for ( index = 0; index < arguments.length; index++ ) {
+	        child = arguments[index];
+	
+	        if ( true ) {
+	            if ( !(child instanceof Component) ) { throw new Error(__filename + ': wrong child type'); }
+	        }
+	
+	        // apply
+	        this.children.push(child);
+	        child.parent = this;
+	
+	        // correct DOM parent/child connection if necessary
+	        if ( child.$node && child.$node.parentNode === null ) {
+	            this.$body.appendChild(child.$node);
+	        }
+	
+	        debug.info('add component ' + child.name + '#' + child.id + ' to ' + this.name + '#' + this.id, null, {
+	            tags: ['add', 'component', this.name, this.id, child.name, child.id]
+	        });
+	
+	        // there are some listeners
+	        if ( this.events['add'] ) {
+	            /**
+	             * A child component is added.
+	             *
+	             * @event module:stb/component~Component#add
+	             *
+	             * @type {Object}
+	             * @property {Component} item new component added
+	             */
+	            this.emit('add', {item: child});
+	        }
+	
+	        //debug.log('component ' + this.name + '#' + this.id + ' new child: ' + child.name + '#' + child.id);
+	    }
+	};
+	
+	
+	/* @todo: consider activation in future */
+	///**
+	// * Insert component into the specific position.
+	// *
+	// * @param {Component} child component instance to insert
+	// * @param {number} index insertion position
+	// */
+	//Component.prototype.insert = function ( child, index ) {
+	//    var prevIndex = this.children.indexOf(child);
+	//
+	//    if ( DEVELOP ) {
+	//        if ( arguments.length !== 2 ) { throw new Error(__filename + ': wrong arguments number'); }
+	//        if ( !(child instanceof Component) ) { throw new Error(__filename + ': wrong child type'); }
+	//    }
+	//
+	//    if ( prevIndex !== -1 ) {
+	//        this.children.splice(prevIndex, 1);
+	//        this.$body.removeChild(child.$node);
+	//    }
+	//
+	//    if ( index === this.children.length ) {
+	//        this.$body.appendChild(child.$node);
+	//    } else {
+	//        this.$body.insertBefore(child.$node, this.$body.children[index]);
+	//    }
+	//    this.children.splice(index, 0, child);
+	//
+	//    if ( !child.parent ) {
+	//        child.parent = this;
+	//    }
+	//};
+	
+	
+	/**
+	 * Delete this component and clear all associated events.
+	 *
+	 * @fires module:stb/component~Component#remove
+	 */
+	Component.prototype.remove = function () {
+	    // really inserted somewhere
+	    if ( this.parent ) {
+	        if ( true ) {
+	            if ( !(this.parent instanceof Component) ) { throw new Error(__filename + ': wrong this.parent type'); }
+	        }
+	
+	        // active at the moment
+	        if ( app.activePage.activeComponent === this ) {
+	            this.blur();
+	            this.parent.focus();
+	        }
+	        this.parent.children.splice(this.parent.children.indexOf(this), 1);
+	    }
+	
+	    // remove all children
+	    this.children.forEach(function ( child ) {
+	        if ( true ) {
+	            if ( !(child instanceof Component) ) { throw new Error(__filename + ': wrong child type'); }
+	        }
+	
+	        child.remove();
+	    });
+	
+	    // remove all listeners
+	    this.events = {};
+	
+	    this.$node.parentNode.removeChild(this.$node);
+	
+	    // there are some listeners
+	    if ( this.events['remove'] ) {
+	        /**
+	         * Delete this component.
+	         *
+	         * @event module:stb/component~Component#remove
+	         */
+	        this.emit('remove');
+	    }
+	
+	    //debug.log('component ' + this.name + '#' + this.id + ' remove', 'red');
+	    debug.info('remove component ' + this.name + '#' + this.id, null, {
+	        tags: ['remove', 'component', this.name, this.id]
+	    });
+	};
+	
+	
+	/**
+	 * Activate the component.
+	 * Notify the owner-page and apply CSS class.
+	 *
+	 * @param {Object} [data] custom data which passed into handlers
+	 *
+	 * @return {boolean} operation status
+	 *
+	 * @fires module:stb/component~Component#focus
+	 */
+	Component.prototype.focus = function ( data ) {
+	    var activePage = app.activePage,
+	        activeItem = activePage.activeComponent;
+	
+	    // this is a visual component on a page
+	    // not already focused and can accept focus
+	    if ( this.focusable && this !== activeItem ) {
+	        // notify the current active component
+	        if ( activeItem ) { activeItem.blur(); }
+	
+	        /* eslint consistent-this: 0 */
+	
+	        // apply
+	        activePage.activeComponent = activeItem = this;
+	        activeItem.$node.classList.add('focus');
+	
+	        //debug.log('component ' + this.name + '#' + this.id + ' focus');
+	        debug.info('focus component ' + this.name + '#' + this.id, null, {
+	            tags: ['focus', 'component', this.name, this.id]
+	        });
+	
+	        // there are some listeners
+	        if ( activeItem.events['focus'] ) {
+	            /**
+	             * Make this component focused.
+	             *
+	             * @event module:stb/component~Component#focus
+	             */
+	            activeItem.emit('focus', data);
+	        }
+	
+	        return true;
+	    }
+	
+	    // nothing was done
+	    return false;
+	};
+	
+	
+	/**
+	 * Remove focus.
+	 * Change page.activeComponent and notify subscribers.
+	 *
+	 * @return {boolean} operation status
+	 *
+	 * @fires module:stb/component~Component#blur
+	 */
+	Component.prototype.blur = function () {
+	    var activePage = app.activePage,
+	        activeItem = activePage.activeComponent;
+	
+	    // apply visuals anyway
+	    this.$node.classList.remove('focus');
+	
+	    // this is the active component
+	    if ( this === activeItem ) {
+	        activePage.activeComponent = null;
+	
+	        //debug.log('component ' + this.name + '#' + this.id + ' blur', 'grey');
+	        debug.info('blur component ' + this.name + '#' + this.id, null, {
+	            tags: ['blur', 'component', this.name, this.id]
+	        });
+	
+	        // there are some listeners
+	        if ( this.events['blur'] ) {
+	            /**
+	             * Remove focus from this component.
+	             *
+	             * @event module:stb/component~Component#blur
+	             */
+	            this.emit('blur');
+	        }
+	
+	        return true;
+	    }
+	
+	    debug.warn('component ' + this.name + '#' + this.id + ' attempt to blur without link to a page', null, {
+	        tags: ['blur', 'component', this.name, this.id]
+	    });
+	
+	    // nothing was done
+	    return false;
+	};
+	
+	
+	/**
+	 * Make the component visible and notify subscribers.
+	 *
+	 * @param {Object} [data] custom data which passed into handlers
+	 *
+	 * @return {boolean} operation status
+	 *
+	 * @fires module:stb/component~Component#show
+	 */
+	Component.prototype.show = function ( data ) {
+	    // is it hidden
+	    if ( !this.visible ) {
+	        // correct style
+	        this.$node.classList.remove('hidden');
+	        // flag
+	        this.visible = true;
+	
+	        debug.info('show component ' + this.name + '#' + this.id, null, {
+	            tags: ['show', 'component', this.name, this.id]
+	        });
+	
+	        // there are some listeners
+	        if ( this.events['show'] ) {
+	            /**
+	             * Make the component visible.
+	             *
+	             * @event module:stb/component~Component#show
+	             */
+	            this.emit('show', data);
+	        }
+	
+	        return true;
+	    }
+	
+	    // nothing was done
+	    return true;
+	};
+	
+	
+	/**
+	 * Make the component hidden and notify subscribers.
+	 *
+	 * @return {boolean} operation status
+	 *
+	 * @fires module:stb/component~Component#hide
+	 */
+	Component.prototype.hide = function () {
+	    // is it visible
+	    if ( this.visible ) {
+	        // correct style
+	        this.$node.classList.add('hidden');
+	        // flag
+	        this.visible = false;
+	
+	        debug.info('hide component ' + this.name + '#' + this.id, null, {
+	            tags: ['hide', 'component', this.name, this.id]
+	        });
+	
+	        // there are some listeners
+	        if ( this.events['hide'] ) {
+	            /**
+	             * Make the component hidden.
+	             *
+	             * @event module:stb/component~Component#hide
+	             */
+	            this.emit('hide');
+	        }
+	
+	        return true;
+	    }
+	
+	    // nothing was done
+	    return true;
+	};
+	
+	
+	// public
+	module.exports = Component;
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, "../../sdk/spasdk/component/index.js"))
+
+/***/ },
+/* 21 */
 /*!******************************!*\
   !*** ./src/js/pages/main.js ***!
   \******************************/
@@ -3624,84 +4448,194 @@
 	'use strict';
 	
 	var app    = __webpack_require__(/*! spa-app */ 1),
-	    Button = __webpack_require__(/*! spa-component-button */ 18),
-	    List   = __webpack_require__(/*! spa-component-list */ 21),
-	    Page   = __webpack_require__(/*! spa-component-page */ 22),
-	    rtc    = __webpack_require__(/*! ../modules/rtc */ 23),
-	    NodeList = __webpack_require__(/*! ./../modules/node.list */ 24),
+	    Button = __webpack_require__(/*! spa-component-button */ 22),
+	    List   = __webpack_require__(/*! spa-component-list */ 24),
+	    Page   = __webpack_require__(/*! spa-component-page */ 19),
+	    rtc    = __webpack_require__(/*! ../modules/rtc */ 25),
+	    Node   = __webpack_require__(/*! ../modules/node */ 26),
+	    NodeList = __webpack_require__(/*! ./../modules/node.list */ 27),
 	    page   = new Page({$node: window.pageMain}),
 	    peer;
 	
 	
-	function addNodeId ( id ) {
-	    if ( id && app.nodes.indexOf(id) === -1 ) {
-	        app.nodes.push(id);
-	        localStorage.setItem('nodes', JSON.stringify(app.nodes));
-	    }
+	function addNodeId ( id, peer ) {
+	    //app.nodes[id] = app.nodes[id] || {};
+	    app.nodes[id] = {peer: peer};
+	
+	    //if ( id && !app.nodes[id] ) {
+	    localStorage.setItem('nodes', JSON.stringify(Object.keys(app.nodes)));
+	    //}
 	}
 	
+	
+	function onNodeOpen ( event ) {
+	    console.log('data channel open');
+	}
+	
+	
 	function connectNode ( id ) {
-	    peer = rtc.Offerer.createOffer(function ( sdp ) {
+	    var node = new Node({
+	        id: id,
+	        rtp: app.config.rtp
+	    });
+	
+	    // send any ice candidates to the other peer
+	    node.pc.onicecandidate = function ( event ) {
+	        if ( event.candidate ) {
+	            //console.log(event.candidate);
+	            //socket.send(JSON.stringify(event.candidate));
+	            console.log('%s: send ice candidate', node.id);
+	            app.wamp.call('ice', {id: id, candidate: event.candidate});
+	        }
+	    };
+	
+	    node.createOffer(function ( sdp ) {
 	        app.wamp.call('connect', {id: id, sdp: sdp}, function ( error, result ) {
 	            //console.log(error, result);
 	            if ( error ) {
 	                console.log('was not able to connect to ', id);
 	            } else {
-	                peer.setRemoteDescription(result);
-	                addNodeId(id);
+	                //console.log('got answer');
+	                node.acceptAnswer(result);
+	                //peer.setRemoteDescription(result);
+	                //addNodeId(id, peer);
+	
+	
 	            }
 	        });
 	    });
 	
-	    peer.peer.onicecandidate = function ( event ) {
-	        if ( event.candidate ) {
-	            //socket.send(JSON.stringify(event.candidate));
-	            app.wamp.call('ice', {id: id, candidate: event.candidate});
-	        }
-	    };
+	    node.addListener('open', function () {
+	        console.log('data channel open');
+	
+	        // node.wamp.addListener('onNodeName', function ( event ) {
+	        //     console.log(event);
+	        // });
+	
+	        setTimeout(function () {
+	            node.wamp.call('onNodeName', {name: app.nodeName});
+	        }, 1000);
+	    });
+	
+	    app.nodes[id] = node;
+	
+	    // var peer = rtc.Offerer.createOffer(function ( sdp ) {
+	    //     app.wamp.call('connect', {id: id, sdp: sdp}, function ( error, result ) {
+	    //         //console.log(error, result);
+	    //         if ( error ) {
+	    //             console.log('was not able to connect to ', id);
+	    //         } else {
+	    //             peer.setRemoteDescription(result);
+	    //             addNodeId(id, peer);
+	    //         }
+	    //     });
+	    // });
+		//
+	    // peer.peer.onicecandidate = function ( event ) {
+	    //     if ( event.candidate ) {
+	    //         //socket.send(JSON.stringify(event.candidate));
+	    //         app.wamp.call('ice', {id: id, candidate: event.candidate});
+	    //     }
+	    // };
 	}
 	
 	
 	app.wamp.addListener('connect', function ( params, callback ) {
-	    if ( app.nodes.indexOf(params.id) !== -1 || confirm('Do you want to add new node with id ' + params.id) ) {
-	        peer = rtc.Answerer.createAnswer(params.sdp, function ( sdp ) {
+	    var node = new Node({
+	        id: params.id,
+	        rtp: app.config.rtp
+	    });
+	
+	    if ( params.id in app.nodes || confirm('Do you want to add new node with id ' + params.id) ) {
+	        // send any ice candidates to the other peer
+	        node.pc.onicecandidate = function ( event ) {
+	            if ( event.candidate ) {
+	                console.log('%s: send ice candidate', node.id);
+	                app.wamp.call('ice', {id: params.id, candidate: event.candidate});
+	            }
+	        };
+	
+	        node.createAnswer(params.sdp, function ( sdp ) {
 	            // send back results to the sender
 	            callback(null, sdp);
 	
-	            addNodeId(params.id);
+	            //addNodeId(params.id, peer);
+	        });
 	
-	            peer.peer.onicecandidate = function ( event ) {
-	                if ( event.candidate ) {
-	                    //socket.send(JSON.stringify(event.candidate));
-	                    app.wamp.call('ice', {id: params.id, candidate: event.candidate});
-	                }
+	        node.addListener('open', function () {
+	            console.log('data channel open');
+	
+	            node.wamp.addListener('onNodeName', function ( event ) {
+	                console.log(event);
+	            });
+	
+	            //node.wamp.call('onNodeName', {name: app.nodeName});
+	            node.wamp.socket.onmessage = function ( event ) {
+	                console.log(event);
 	            };
 	        });
+	
+	        app.nodes[params.id] = node;
+	
+	        //if ( !(params.id in app.nodes) ) {
+	        localStorage.setItem('nodes', JSON.stringify(Object.keys(app.nodes)));
+	        //}
 	    }
+	
+	    // var peer;
+		//
+	    // if ( app.nodes[params.id] || confirm('Do you want to add new node with id ' + params.id) ) {
+	    //     peer = rtc.Answerer.createAnswer(params.sdp, function ( sdp ) {
+	    //         // send back results to the sender
+	    //         callback(null, sdp);
+		//
+	    //         addNodeId(params.id, peer);
+		//
+	    //         peer.peer.onicecandidate = function ( event ) {
+	    //             if ( event.candidate ) {
+	    //                 //socket.send(JSON.stringify(event.candidate));
+	    //                 app.wamp.call('ice', {id: params.id, candidate: event.candidate});
+	    //             }
+	    //         };
+	    //     });
+	    // }
 	});
 	
 	app.wamp.addListener('ice', function ( params ) {
 	    //console.log(params);
-	    peer.addIceCandidate(params.candidate);
+	    if ( app.nodes[params.id] /*&& app.nodes[params.id].peer*/ ) {
+	        app.nodes[params.id].addIceCandidate(params.candidate);
+	    }
 	});
 	
-	page.add(
-	    page.nodeList = new List({
-	        $node: window.pmNodeList,
-	        data: app.nodes.slice()
-	        //parent: this,
-	        //wamp: this.wamp
-	    })
-	);
+	// page.add(
+	//     page.nodeList = new List({
+	//         $node: window.pmNodeList,
+	//         data: app.nodes.slice()
+	//         //parent: this,
+	//         //wamp: this.wamp
+	//     })
+	// );
 	
 	page.add(new Button({
 	    $node: window.pmBtnDisconnect,
 	    value: 'Disconnect',
 	    events: {
 	        click: function () {
-	            window.nodeId.classList.remove('online');
+	            window.serverAddressValue.parentNode.classList.remove('online');
 	            app.wamp.socket.onclose = null;
 	            app.wamp.socket.close();
+	        }
+	    }
+	}));
+	
+	page.add(new Button({
+	    $node: window.pmBtnRemoveNodes,
+	    value: 'Remove nodes',
+	    events: {
+	        click: function () {
+	            localStorage.setItem('nodes', '[]');
+	            console.log('all nodes are removed!');
 	        }
 	    }
 	}));
@@ -3715,18 +4649,45 @@
 	
 	            if ( id ) {
 	                connectNode(id);
+	                localStorage.setItem('nodes', JSON.stringify(Object.keys(app.nodes)));
 	            }
 	        }
 	    }
 	}));
 	
 	
-	setTimeout(function () {
-	    app.nodes.forEach(function ( id ) {
+	app.addListener('wamp:open', function () {
+	    window.serverAddressValue.parentNode.classList.add('online');
+	
+	    //setTimeout(function () {
+	    Object.keys(app.nodes).forEach(function ( id ) {
 	        //page.nodeList.add({data: id});
 	        connectNode(id);
 	    });
-	}, 500);
+	    //}, Math.floor(Math.random() * 1000));
+	
+	    // remove loading gif
+	    document.body.classList.remove('loading');
+	
+	    // show this page
+	    app.route(page);
+	});
+	
+	
+	app.addListener('wamp:close', function () {
+	    window.serverAddressValue.parentNode.classList.remove('online');
+	});
+	
+	
+	app.addListener('wamp:auth:error', function () {
+	    alert('Fatal authentication error.');
+	});
+	
+	
+	window.serverAddressValue.innerText = 'wss.fortnotes.com';
+	window.serverAddressValue.href = 'https://wss.fortnotes.com/';
+	window.nodeIdValue.innerText = app.nodeId;
+	window.nodeNameValue.innerText = app.nodeName;
 	
 	
 	// public
@@ -3734,7 +4695,7 @@
 
 
 /***/ },
-/* 18 */
+/* 22 */
 /*!**************************************************************!*\
   !*** /home/dp/Projects/sdk/spasdk/component-button/index.js ***!
   \**************************************************************/
@@ -3749,8 +4710,8 @@
 	
 	'use strict';
 	
-	var Component = __webpack_require__(/*! spa-component */ 19),
-	    keys      = __webpack_require__(/*! spa-keys */ 20);
+	var Component = __webpack_require__(/*! spa-component */ 20),
+	    keys      = __webpack_require__(/*! spa-keys */ 23);
 	
 	
 	/**
@@ -3892,578 +4853,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, "../../sdk/spasdk/component-button/index.js"))
 
 /***/ },
-/* 19 */
-/*!*******************************************************!*\
-  !*** /home/dp/Projects/sdk/spasdk/component/index.js ***!
-  \*******************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(__filename) {/**
-	 * @license The MIT License (MIT)
-	 * @copyright Stanislav Kalashnik <darkpark.main@gmail.com>
-	 */
-	
-	/* eslint no-path-concat: 0 */
-	
-	'use strict';
-	
-	var app     = __webpack_require__(/*! spa-app/lib/core */ 2),
-	    Emitter = __webpack_require__(/*! cjs-emitter */ 3),
-	    counter = 0;
-	
-	
-	/**
-	 * Base component implementation.
-	 *
-	 * Visual element that can handle sub-components.
-	 * Each component has a DOM element container $node with a set of classes:
-	 * "component" and some specific component class names depending on the hierarchy, for example "page".
-	 * Each component has a unique ID given either from $node.id or from data.id. If not given will generate automatically.
-	 *
-	 * @constructor
-	 * @extends Emitter
-	 *
-	 * @param {Object} [config={}] init parameters
-	 * @param {Element} [config.id] component unique identifier (generated if not set)
-	 * @param {string} [config.className] space-separated list of classes for "className" property of this.$node
-	 * @param {Element} [config.$node] DOM element/fragment to be a component outer container
-	 * @param {Element} [config.$body] DOM element/fragment to be a component inner container (by default is the same as $node)
-	 * @param {Component} [config.parent] link to the parent component which has this component as a child
-	 * @param {Array.<Component>} [config.children=[]] list of components in this component
-	 * @param {Object.<string, function>} [config.events={}] list of event callbacks
-	 * @param {boolean} [config.visible=true] component initial visibility state flag
-	 * @param {boolean} [config.focusable=true] component can accept focus or not
-	 * @param {boolean} [config.propagate=false] allow to emit events to the parent component
-	 *
-	 * @fires module:stb/component~Component#click
-	 *
-	 * @example
-	 * var component = new Component({
-	 *     $node: document.getElementById(id),
-	 *     className: 'bootstrap responsive',
-	 *     events: {
-	 *         click: function () { ... }
-	 *     }
-	 * });
-	 * component.add( ... );
-	 * component.focus();
-	 */
-	function Component ( config ) {
-	    // current execution context
-	    var self = this,
-	        name;
-	
-	    // sanitize
-	    config = config || {};
-	
-	    console.assert(typeof this === 'object', 'must be constructed via new');
-	
-	    if ( true ) {
-	        if ( typeof config !== 'object' ) { throw new Error(__filename + ': wrong config type'); }
-	        // init parameters checks
-	        if ( config.id        && typeof config.id !== 'string'         ) { throw new Error(__filename + ': wrong or empty config.id'); }
-	        if ( config.className && typeof config.className !== 'string'  ) { throw new Error(__filename + ': wrong or empty config.className'); }
-	        if ( config.$node     && !(config.$node instanceof Element)    ) { throw new Error(__filename + ': wrong config.$node type'); }
-	        if ( config.$body     && !(config.$body instanceof Element)    ) { throw new Error(__filename + ': wrong config.$body type'); }
-	        if ( config.parent    && !(config.parent instanceof Component) ) { throw new Error(__filename + ': wrong config.parent type'); }
-	        if ( config.children  && !Array.isArray(config.children)       ) { throw new Error(__filename + ': wrong config.children type'); }
-	    }
-	
-	    /**
-	     * Component visibility state flag.
-	     *
-	     * @readonly
-	     * @type {boolean}
-	     */
-	    this.visible = true;
-	
-	    /**
-	     * Component can accept focus or not.
-	     *
-	     * @type {boolean}
-	     */
-	    this.focusable = true;
-	
-	    /**
-	     * DOM outer handle.
-	     *
-	     * @type {Element}
-	     */
-	    this.$node = null;
-	
-	    /**
-	     * DOM inner handle.
-	     * In simple cases is the same as $node.
-	     *
-	     * @type {Element}
-	     */
-	    this.$body = null;
-	
-	    /**
-	     * Link to the parent component which has this component as a child.
-	     *
-	     * @type {Component}
-	     */
-	    this.parent = null;
-	
-	    /**
-	     * List of all children components.
-	     *
-	     * @type {Component[]}
-	     */
-	    this.children = [];
-	
-	    /**
-	     * allow to emit events to the parent component
-	     *
-	     * @readonly
-	     * @type {boolean}
-	     */
-	    this.propagate = !!config.propagate;
-	
-	    // parent constructor call
-	    Emitter.call(this, config.data);
-	
-	    // outer handle - empty div in case nothing is given
-	    this.$node = config.$node || document.createElement('div');
-	
-	    // inner handle - the same as outer handler in case nothing is given
-	    this.$body = config.$body || this.$node;
-	
-	    // set CSS class names
-	    //this.$node.className += ' component ' + (config.className || '');
-	    this.$node.className = this.name + ' ' + (config.className || '');
-	
-	    // apply component id if given, generate otherwise
-	    this.id = config.id || this.$node.id || 'cid' + counter++;
-	
-	    // apply hierarchy
-	    if ( config.parent ) {
-	        // add to parent component
-	        config.parent.add(this);
-	    }
-	
-	    // apply given visibility
-	    if ( config.visible === false ) {
-	        // default state is visible
-	        this.hide();
-	    }
-	
-	    // apply focus handling method
-	    if ( config.focusable === false ) {
-	        // can't accept focus
-	        this.focusable = false;
-	    }
-	
-	    // a descendant defined own events
-	    if ( this.defaultEvents ) {
-	        // sanitize
-	        config.events = config.events || {};
-	
-	        if ( true ) {
-	            if ( typeof config.events !== 'object' ) { throw new Error(__filename + ': wrong config.events type'); }
-	            if ( typeof this.defaultEvents !== 'object' ) { throw new Error(__filename + ': wrong this.defaultEvents type'); }
-	        }
-	
-	        for ( name in this.defaultEvents ) {
-	            // overwrite default events with user-defined
-	            config.events[name] = config.events[name] || this.defaultEvents[name];
-	        }
-	    }
-	
-	    if ( config.events ) {
-	        // apply all given events
-	        Object.keys(config.events).forEach(function ( name ) {
-	            self.addListener(name, config.events[name]);
-	        });
-	    }
-	
-	    // apply the given children components
-	    if ( config.children ) {
-	        // apply
-	        this.add.apply(this, config.children);
-	    }
-	
-	    // component activation by mouse
-	    this.$node.addEventListener('click', function ( event ) {
-	        // left mouse button
-	        //if ( event.button === 0 ) {
-	        // activate if possible
-	        self.focus();
-	
-	        // there are some listeners
-	        if ( self.events['click'] ) {
-	            /**
-	             * Mouse click event.
-	             *
-	             * @event module:stb/component~Component#click
-	             *
-	             * @type {Object}
-	             * @property {Event} event click event data
-	             */
-	            self.emit('click', event);
-	        }
-	        //}
-	
-	        if ( true ) {
-	            // middle mouse button
-	            if ( event.button === 1 ) {
-	                //debug.inspect(self, 0);
-	                debug.info('"window.link" or "' + self.id + '.component"', 'this component is now available in global scope');
-	                window.link = self;
-	                self.$node.classList.toggle('wired');
-	            }
-	        }
-	
-	        event.stopPropagation();
-	    });
-	
-	    if ( true ) {
-	        // expose inner ID to global scope
-	        window[self.id] = self.$node;
-	
-	        // expose a link
-	        this.$node.component = this.$body.component = this;
-	        this.$node.title = 'component ' + this.constructor.name + '#' + this.id + ' (outer)';
-	        this.$body.title = 'component ' + this.constructor.name + '#' + this.id + ' (inner)';
-	    }
-	
-	    debug.info('create component ' + this.constructor.name + '#' + this.id, null, {
-	        tags: ['create', 'component', this.constructor.name, this.id]
-	    });
-	}
-	
-	
-	// inheritance
-	Component.prototype = Object.create(Emitter.prototype);
-	Component.prototype.constructor = Component;
-	
-	
-	/**
-	 * List of all default event callbacks.
-	 *
-	 * @type {Object.<string, function>}
-	 */
-	Component.prototype.defaultEvents = null;
-	
-	
-	/**
-	 * Add a new component as a child.
-	 *
-	 * @param {...Component} [child] variable number of elements to append
-	 *
-	 * @files Component#add
-	 *
-	 * @example
-	 * panel.add(
-	 *     new Button( ... ),
-	 *     new Button( ... )
-	 * );
-	 */
-	Component.prototype.add = function ( child ) {
-	    var index;
-	
-	    // walk through all the given elements
-	    for ( index = 0; index < arguments.length; index++ ) {
-	        child = arguments[index];
-	
-	        if ( true ) {
-	            if ( !(child instanceof Component) ) { throw new Error(__filename + ': wrong child type'); }
-	        }
-	
-	        // apply
-	        this.children.push(child);
-	        child.parent = this;
-	
-	        // correct DOM parent/child connection if necessary
-	        if ( child.$node && child.$node.parentNode === null ) {
-	            this.$body.appendChild(child.$node);
-	        }
-	
-	        debug.info('add component ' + child.constructor.name + '#' + child.id + ' to ' + this.constructor.name + '#' + this.id, null, {
-	            tags: ['add', 'component', this.constructor.name, this.id, child.constructor.name, child.id]
-	        });
-	
-	        // there are some listeners
-	        if ( this.events['add'] ) {
-	            /**
-	             * A child component is added.
-	             *
-	             * @event module:stb/component~Component#add
-	             *
-	             * @type {Object}
-	             * @property {Component} item new component added
-	             */
-	            this.emit('add', {item: child});
-	        }
-	
-	        //debug.log('component ' + this.constructor.name + '#' + this.id + ' new child: ' + child.constructor.name + '#' + child.id);
-	    }
-	};
-	
-	
-	/* @todo: consider activation in future */
-	///**
-	// * Insert component into the specific position.
-	// *
-	// * @param {Component} child component instance to insert
-	// * @param {number} index insertion position
-	// */
-	//Component.prototype.insert = function ( child, index ) {
-	//    var prevIndex = this.children.indexOf(child);
-	//
-	//    if ( DEVELOP ) {
-	//        if ( arguments.length !== 2 ) { throw new Error(__filename + ': wrong arguments number'); }
-	//        if ( !(child instanceof Component) ) { throw new Error(__filename + ': wrong child type'); }
-	//    }
-	//
-	//    if ( prevIndex !== -1 ) {
-	//        this.children.splice(prevIndex, 1);
-	//        this.$body.removeChild(child.$node);
-	//    }
-	//
-	//    if ( index === this.children.length ) {
-	//        this.$body.appendChild(child.$node);
-	//    } else {
-	//        this.$body.insertBefore(child.$node, this.$body.children[index]);
-	//    }
-	//    this.children.splice(index, 0, child);
-	//
-	//    if ( !child.parent ) {
-	//        child.parent = this;
-	//    }
-	//};
-	
-	
-	/**
-	 * Delete this component and clear all associated events.
-	 *
-	 * @fires module:stb/component~Component#remove
-	 */
-	Component.prototype.remove = function () {
-	    // really inserted somewhere
-	    if ( this.parent ) {
-	        if ( true ) {
-	            if ( !(this.parent instanceof Component) ) { throw new Error(__filename + ': wrong this.parent type'); }
-	        }
-	
-	        // active at the moment
-	        if ( app.activePage.activeComponent === this ) {
-	            this.blur();
-	            this.parent.focus();
-	        }
-	        this.parent.children.splice(this.parent.children.indexOf(this), 1);
-	    }
-	
-	    // remove all children
-	    this.children.forEach(function ( child ) {
-	        if ( true ) {
-	            if ( !(child instanceof Component) ) { throw new Error(__filename + ': wrong child type'); }
-	        }
-	
-	        child.remove();
-	    });
-	
-	    // remove all listeners
-	    this.events = {};
-	
-	    this.$node.parentNode.removeChild(this.$node);
-	
-	    // there are some listeners
-	    if ( this.events['remove'] ) {
-	        /**
-	         * Delete this component.
-	         *
-	         * @event module:stb/component~Component#remove
-	         */
-	        this.emit('remove');
-	    }
-	
-	    //debug.log('component ' + this.constructor.name + '#' + this.id + ' remove', 'red');
-	    debug.info('remove component ' + this.constructor.name + '#' + this.id, null, {
-	        tags: ['remove', 'component', this.constructor.name, this.id]
-	    });
-	};
-	
-	
-	/**
-	 * Activate the component.
-	 * Notify the owner-page and apply CSS class.
-	 *
-	 * @param {Object} [data] custom data which passed into handlers
-	 *
-	 * @return {boolean} operation status
-	 *
-	 * @fires module:stb/component~Component#focus
-	 */
-	Component.prototype.focus = function ( data ) {
-	    var activePage = app.activePage,
-	        activeItem = activePage.activeComponent;
-	
-	    // this is a visual component on a page
-	    // not already focused and can accept focus
-	    if ( this.focusable && this !== activeItem ) {
-	        // notify the current active component
-	        if ( activeItem ) { activeItem.blur(); }
-	
-	        /* eslint consistent-this: 0 */
-	
-	        // apply
-	        activePage.activeComponent = activeItem = this;
-	        activeItem.$node.classList.add('focus');
-	
-	        //debug.log('component ' + this.constructor.name + '#' + this.id + ' focus');
-	        debug.info('focus component ' + this.constructor.name + '#' + this.id, null, {
-	            tags: ['focus', 'component', this.constructor.name, this.id]
-	        });
-	
-	        // there are some listeners
-	        if ( activeItem.events['focus'] ) {
-	            /**
-	             * Make this component focused.
-	             *
-	             * @event module:stb/component~Component#focus
-	             */
-	            activeItem.emit('focus', data);
-	        }
-	
-	        return true;
-	    }
-	
-	    // nothing was done
-	    return false;
-	};
-	
-	
-	/**
-	 * Remove focus.
-	 * Change page.activeComponent and notify subscribers.
-	 *
-	 * @return {boolean} operation status
-	 *
-	 * @fires module:stb/component~Component#blur
-	 */
-	Component.prototype.blur = function () {
-	    var activePage = app.activePage,
-	        activeItem = activePage.activeComponent;
-	
-	    // apply visuals anyway
-	    this.$node.classList.remove('focus');
-	
-	    // this is the active component
-	    if ( this === activeItem ) {
-	        activePage.activeComponent = null;
-	
-	        //debug.log('component ' + this.constructor.name + '#' + this.id + ' blur', 'grey');
-	        debug.info('blur component ' + this.constructor.name + '#' + this.id, null, {
-	            tags: ['blur', 'component', this.constructor.name, this.id]
-	        });
-	
-	        // there are some listeners
-	        if ( this.events['blur'] ) {
-	            /**
-	             * Remove focus from this component.
-	             *
-	             * @event module:stb/component~Component#blur
-	             */
-	            this.emit('blur');
-	        }
-	
-	        return true;
-	    }
-	
-	    debug.warn('component ' + this.constructor.name + '#' + this.id + ' attempt to blur without link to a page', null, {
-	        tags: ['blur', 'component', this.constructor.name, this.id]
-	    });
-	
-	    // nothing was done
-	    return false;
-	};
-	
-	
-	/**
-	 * Make the component visible and notify subscribers.
-	 *
-	 * @param {Object} [data] custom data which passed into handlers
-	 *
-	 * @return {boolean} operation status
-	 *
-	 * @fires module:stb/component~Component#show
-	 */
-	Component.prototype.show = function ( data ) {
-	    // is it hidden
-	    if ( !this.visible ) {
-	        // correct style
-	        this.$node.classList.remove('hidden');
-	        // flag
-	        this.visible = true;
-	
-	        debug.info('show component ' + this.constructor.name + '#' + this.id, null, {
-	            tags: ['show', 'component', this.constructor.name, this.id]
-	        });
-	
-	        // there are some listeners
-	        if ( this.events['show'] ) {
-	            /**
-	             * Make the component visible.
-	             *
-	             * @event module:stb/component~Component#show
-	             */
-	            this.emit('show', data);
-	        }
-	
-	        return true;
-	    }
-	
-	    // nothing was done
-	    return true;
-	};
-	
-	
-	/**
-	 * Make the component hidden and notify subscribers.
-	 *
-	 * @return {boolean} operation status
-	 *
-	 * @fires module:stb/component~Component#hide
-	 */
-	Component.prototype.hide = function () {
-	    // is it visible
-	    if ( this.visible ) {
-	        // correct style
-	        this.$node.classList.add('hidden');
-	        // flag
-	        this.visible = false;
-	
-	        debug.info('hide component ' + this.constructor.name + '#' + this.id, null, {
-	            tags: ['hide', 'component', this.constructor.name, this.id]
-	        });
-	
-	        // there are some listeners
-	        if ( this.events['hide'] ) {
-	            /**
-	             * Make the component hidden.
-	             *
-	             * @event module:stb/component~Component#hide
-	             */
-	            this.emit('hide');
-	        }
-	
-	        return true;
-	    }
-	
-	    // nothing was done
-	    return true;
-	};
-	
-	
-	// public
-	module.exports = Component;
-	
-	/* WEBPACK VAR INJECTION */}.call(exports, "../../sdk/spasdk/component/index.js"))
-
-/***/ },
-/* 20 */
+/* 23 */
 /*!**************************************************!*\
   !*** /home/dp/Projects/sdk/spasdk/keys/index.js ***!
   \**************************************************/
@@ -4500,7 +4890,7 @@
 
 
 /***/ },
-/* 21 */
+/* 24 */
 /*!************************************************************!*\
   !*** /home/dp/Projects/sdk/spasdk/component-list/index.js ***!
   \************************************************************/
@@ -4515,8 +4905,8 @@
 	
 	'use strict';
 	
-	var Component = __webpack_require__(/*! spa-component */ 19),
-	    keys      = __webpack_require__(/*! spa-keys */ 20);
+	var Component = __webpack_require__(/*! spa-component */ 20),
+	    keys      = __webpack_require__(/*! spa-keys */ 23);
 	
 	
 	/**
@@ -5514,107 +5904,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, "../../sdk/spasdk/component-list/index.js"))
 
 /***/ },
-/* 22 */
-/*!************************************************************!*\
-  !*** /home/dp/Projects/sdk/spasdk/component-page/index.js ***!
-  \************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(__filename) {/**
-	 * @license The MIT License (MIT)
-	 * @copyright Stanislav Kalashnik <darkpark.main@gmail.com>
-	 */
-	
-	/* eslint no-path-concat: 0 */
-	
-	'use strict';
-	
-	var Component = __webpack_require__(/*! spa-component */ 19);
-	
-	
-	/**
-	 * Base page implementation.
-	 *
-	 * A full-screen top-level layer that can operate as an independent separate entity.
-	 * It is added to the document body on creation if not already linked.
-	 *
-	 * @constructor
-	 * @extends Component
-	 *
-	 * @param {Object} [config={}] init parameters (all inherited from the parent)
-	 *
-	 * @example
-	 * var Page = require('stb/ui/page'),
-	 *     page = new Page({
-	 *         $node: document.getElementById(id)
-	 *     });
-	 *
-	 * page.addListener('show', function show () {
-	 *     // page is visible now
-	 * });
-	 */
-	function Page ( config ) {
-	    // sanitize
-	    config = config || {};
-	
-	    console.assert(typeof this === 'object', 'must be constructed via new');
-	
-	    if ( true ) {
-	        if ( typeof config !== 'object' ) { throw new Error(__filename + ': wrong config type'); }
-	        // init parameters checks
-	        if ( config.className && typeof config.className !== 'string' ) { throw new Error(__filename + ': wrong or empty config.className'); }
-	    }
-	
-	    /**
-	     * Page visibility/active state flag.
-	     *
-	     * @readonly
-	     * @type {boolean}
-	     */
-	    this.active = false;
-	
-	    /**
-	     * Link to the currently active component with focus.
-	     *
-	     * @readonly
-	     * @type {Component}
-	     */
-	    this.activeComponent = null;
-	
-	    // set default className if classList property empty or undefined
-	    //config.className = 'page ' + (config.className || '');
-	
-	    // parent constructor call
-	    Component.call(this, config);
-	
-	    // state flag
-	    this.active = this.$node.classList.contains('active');
-	
-	    // correct DOM parent/child connection if necessary
-	    if ( this.$node.parentNode === null ) {
-	        document.body.appendChild(this.$node);
-	    }
-	
-	    // always itself
-	    this.page = this;
-	}
-	
-	
-	// inheritance
-	Page.prototype = Object.create(Component.prototype);
-	Page.prototype.constructor = Page;
-	
-	// set component name
-	Page.prototype.name = 'spa-component-page';
-	
-	
-	// public
-	module.exports = Page;
-	
-	/* WEBPACK VAR INJECTION */}.call(exports, "../../sdk/spasdk/component-page/index.js"))
-
-/***/ },
-/* 23 */
+/* 25 */
 /*!*******************************!*\
   !*** ./src/js/modules/rtc.js ***!
   \*******************************/
@@ -5660,8 +5950,8 @@
 	    createOffer: function ( callback ) {
 	        var peer = new RTCPeerConnection(servers, mediaConstraints);
 	
-	        offererDataChannel = peer.createDataChannel('channel', {reliable: true});
-	        setChannelEvents(offererDataChannel);
+	        this.dc = peer.createDataChannel('channel', {reliable: true});
+	        setChannelEvents(this.dc);
 	
 	        peer.onsignalingstatechange = function ( event ) {
 	            console.log('Offerer: signaling state change - ' + peer.signalingState);
@@ -5714,11 +6004,13 @@
 	
 	var Answerer = {
 	    createAnswer: function ( offerSDP, callback ) {
-	        var peer = new RTCPeerConnection(servers, mediaConstraints);
+	        var peer = new RTCPeerConnection(servers, mediaConstraints),
+	            self = this;
 	
 	        peer.ondatachannel = function ( event ) {
-	            answererDataChannel = event.channel;
-	            setChannelEvents(answererDataChannel);
+	            self.dc = event.channel;
+	            setChannelEvents(self.dc);
+	
 	        };
 	
 	        peer.onsignalingstatechange = function ( event ) {
@@ -5779,7 +6071,7 @@
 	    channel.onmessage = function ( event ) {
 	        var data = JSON.parse(event.data);
 	        console.log(data);
-	        window.messages.value += '<< ' + data + '\n';
+	        //window.messages.value += '<< ' + data + '\n';
 	    };
 	    channel.onopen = function () {
 	        console.log('data channel open');
@@ -5808,7 +6100,215 @@
 
 
 /***/ },
-/* 24 */
+/* 26 */
+/*!********************************!*\
+  !*** ./src/js/modules/node.js ***!
+  \********************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * @license The MIT License (MIT)
+	 * @copyright Stanislav Kalashnik <darkpark.main@gmail.com>
+	 */
+	
+	'use strict';
+	
+	var Emitter = __webpack_require__(/*! cjs-emitter */ 3),
+	    Wamp    = __webpack_require__(/*! cjs-wamp */ 11),
+	    RTCPeerConnection     = window.RTCPeerConnection     || window.mozRTCPeerConnection || window.webkitRTCPeerConnection,
+	    RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription,
+	    RTCIceCandidate       = window.RTCIceCandidate       || window.mozRTCIceCandidate;
+	
+	
+	function errorHandler ( error ) {
+	    console.log('error');
+	    console.log(error);
+	}
+	
+	
+	/**
+	 * @param {Object} [config={}] init parameters
+	 * @param {number} config.id node id
+	 * @param {RTCConfiguration} config.rtp connection config
+	 *
+	 * @constructor
+	 */
+	function Node ( config ) {
+	    config = config || {};
+	
+	    // parent constructor call
+	    Emitter.call(this);
+	
+	    this.id = config.id;
+	
+	    this.pc = new RTCPeerConnection(config.rtp);
+	}
+	
+	
+	// inheritance
+	Node.prototype = Object.create(Emitter.prototype);
+	Node.prototype.constructor = Node;
+	
+	
+	Node.prototype.createOffer = function ( callback ) {
+	    var self = this;
+	
+	    this.pc.onsignalingstatechange = function () {
+	        console.log('%s: signaling state change - %s', self.id, self.pc.signalingState);
+	    };
+	
+	    this.pc.oniceconnectionstatechange = function () {
+	        console.log('%s: ice connection state change - %s', self.id, self.pc.iceConnectionState);
+	    };
+	
+	    /*this.pc.onconnectionstatechange = function () {
+	        console.log('%s: offer connection state change - %s', self.id, self.pc.connectionState);
+	    };*/
+	
+	    // let the event trigger offer generation
+	    this.pc.onnegotiationneeded = function () {
+	        console.log('negotiation needed');
+	
+	        self.pc.createOffer()
+	            .then(function ( sdp ) {
+	                console.log('%s: create offer', self.id);
+	
+	                return self.pc.setLocalDescription(sdp);
+	            })
+	            .then(function () {
+	                // send the offer to the other peer
+	                callback(self.pc.localDescription);
+	            })
+	            .catch(errorHandler);
+	
+	        // self.pc.createOffer(function ( sdp ) {
+	        //     console.log('%s: create offer', self.id);
+	        //     self.pc.setLocalDescription(sdp);
+	        //     callback(sdp);
+	        // }, errorHandler);
+	    };
+	
+	    this.dc   = this.pc.createDataChannel('main');
+	    this.wamp = self.setDataChannel(this.dc);
+	
+	    // peer.onicecandidate = function ( event ) {
+	    //     if ( event.candidate ) {
+	    //         socket.send(JSON.stringify(event.candidate));
+	    //         //window.iceCandidates.value += JSON.stringify(event.candidate) + '\n';
+	    //     }
+	    // };
+	};
+	
+	
+	Node.prototype.createAnswer = function ( sdp, callback ) {
+	    var self = this;
+	
+	    this.pc.ondatachannel = function ( event ) {
+	        self.dc   = event.channel;
+	        self.wamp = self.setDataChannel(self.dc);
+	    };
+	
+	    this.pc.onsignalingstatechange = function () {
+	        console.log('%s: signaling state change - %s', self.id, self.pc.signalingState);
+	    };
+	
+	    this.pc.oniceconnectionstatechange = function () {
+	        console.log('%s: ice connection state change - %s', self.id, self.pc.iceConnectionState);
+	    };
+	
+	    /*this.pc.onnegotiationneeded = function ( event ) {
+	     console.log('Answerer: negotiation needed', event);
+	     };*/
+	
+	    // answererDataChannel = this.pc.createDataChannel('channel', {reliable: true});
+	    // setChannelEvents(answererDataChannel);
+	
+	    // this.pc.ondatachannel = function ( event ) {
+	    //     answererDataChannel = event.channel;
+	    //     setChannelEvents(answererDataChannel);
+	    // };
+	
+	    // this.pc.onicecandidate = function ( event ) {
+	    //     if ( event.candidate ) {
+	    //         //window.iceCandidates.value += JSON.stringify(event.candidate) + '\n';
+	    //         socket.send(JSON.stringify(event.candidate));
+	    //     }
+	    // };
+	
+	    this.pc.setRemoteDescription(new RTCSessionDescription(sdp), function () {
+	        console.log('%s: accept offer', self.id);
+	    }, errorHandler);
+	
+	    this.pc.createAnswer(function ( sdp ) {
+	        console.log('%s: create answer', self.id);
+	        self.pc.setLocalDescription(sdp);
+	        //window.answer.value = JSON.stringify(sdp);
+	        //socket.send(JSON.stringify(sdp));
+	        callback(sdp);
+	    }, errorHandler);
+	};
+	
+	
+	Node.prototype.acceptAnswer = function ( sdp ) {
+	    var self = this;
+	
+	    this.pc.setRemoteDescription(new RTCSessionDescription(sdp), function () {
+	        console.log('%s: accept answer', self.id);
+	    }, errorHandler);
+	};
+	
+	
+	Node.prototype.addIceCandidate = function ( candidate ) {
+	    var self = this;
+	
+	    this.pc.addIceCandidate(new RTCIceCandidate({
+	        sdpMLineIndex: candidate.sdpMLineIndex,
+	        candidate: candidate.candidate
+	    }), function () {
+	        console.log('%s: add ice candidate', self.id);
+	    }, errorHandler);
+	};
+	
+	
+	Node.prototype.setDataChannel = function ( channel ) {
+	    var self = this;
+	
+	    // channel.onmessage = function ( event ) {
+	    //     var data = JSON.parse(event.data);
+		//
+	    //     console.log('data channel message (length:%s): %s', data.length, data);
+	    //     //window.messages.value += '<< ' + data + '\n';
+	    // };
+	
+	    channel.onopen = function () {
+	        //console.log('data channel open');
+	        self.emit('open');
+	        // channel.push = channel.send;
+	        // channel.send = function ( data ) {
+	        //     channel.push(JSON.stringify(data));
+	        // };
+	        //
+	        // channel.send('ping');
+	    };
+	
+	    channel.onerror = function ( error ) {
+	        console.error('channel.onerror', error);
+	    };
+	
+	    channel.onclose = function ( error ) {
+	        console.warn('channel.onclose', error);
+	    };
+	
+	    return new Wamp(channel);
+	};
+	
+	
+	// public
+	module.exports = Node;
+
+
+/***/ },
+/* 27 */
 /*!*************************************!*\
   !*** ./src/js/modules/node.list.js ***!
   \*************************************/
@@ -5823,7 +6323,7 @@
 	
 	'use strict';
 	
-	var Component = __webpack_require__(/*! spa-component */ 19);
+	var Component = __webpack_require__(/*! spa-component */ 20);
 	
 	
 	/**

@@ -7,14 +7,33 @@
         <meta name="description" content="FortNotes browser client.">
         <link rel="icon" type="image/png" href="img/favicon.png">
         <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans">
+        <style type="text/css">
+            .loading {
+                background: url('img/loading.gif') center no-repeat;
+            }
+            
+        </style>
         <link rel="stylesheet" href="css/develop.sdk.css">
         <link rel="stylesheet" href="css/develop.app.css">
     </head>
-    <body>
-        <!--include pages/init-->
+    <body class="loading">
+        <!-- top-level page block-->
+        <div id="pageInit" class="invisible">
+            <table>
+                <tr>
+                    <td class="header">FortNotes Online Password Manager</td>
+                </tr>
+                <tr>
+                    <td class="body"></td>
+                </tr>
+                <tr>
+                    <td class="footer">2.0.0</td>
+                </tr>
+            </table>
+        </div>
         <!--include pages/account-->
         <!-- top-level page block-->
-        <div id="pageMain">
+        <div id="pageMain" class="invisible">
             <table>
                 <tr>
                     <td class="header">FortNotes Online Password Manager</td>
@@ -22,13 +41,27 @@
                 <tr>
                     <td class="body">
                         <div id="pmBtnDisconnect"></div>
+                        <div id="pmBtnRemoveNodes"></div>
                         <div id="pmBtnAddNode"></div>
                         <div id="pmNodeList"></div>
                     </td>
                 </tr>
                 <tr>
                     <td class="footer">
-                        <div id="nodeId"></div>
+                        <div class="block version">
+                            <div>version:</div><a href="https://github.com/fortnotes/client">2.0.0</a>
+                        </div>
+                        <div class="block server">
+                            <div id="serverAddressLabel">server:</div><a id="serverAddressValue">(n/a)</a>
+                        </div>
+                        <div class="block">
+                            <div id="nodeIdLabel">node id:</div>
+                            <div id="nodeIdValue">(n/a)</div>
+                        </div>
+                        <div class="block">
+                            <div id="nodeNameLabel">node name:</div>
+                            <div id="nodeNameValue">(n/a)</div>
+                        </div>
                     </td>
                 </tr>
             </table>

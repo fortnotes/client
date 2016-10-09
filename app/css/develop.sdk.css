@@ -24,6 +24,9 @@ table {
 a {
     text-decoration: none; }
 
+.invisible {
+    visibility: hidden; }
+
 /* spa-app: develop */
 body.develop {
     outline: 1px solid yellow;
