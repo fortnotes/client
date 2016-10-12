@@ -50,7 +50,7 @@ function connectNode ( id ) {
         app.wamp.call('connect', {id: id, sdp: sdp}, function ( error, result ) {
             //console.log(error, result);
             if ( error ) {
-                console.log('was not able to connect to ', id);
+                console.log('%s: no connection', id);
             } else {
                 //console.log('got answer');
                 node.acceptAnswer(result);

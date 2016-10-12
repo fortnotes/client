@@ -1312,7 +1312,7 @@
 	     */
 	    unload: function ( event ) {
 	        //debug.event(event);
-	        console.log(event);
+	        //console.log(event);
 	
 	        debug.info('app event: ' + event.type, event, {tags: [event.type, 'event']});
 	
@@ -1386,7 +1386,7 @@
 	
 	        //debug.event(event);
 	        //console.log(event);
-	        //debug.info('app event: ' + event.type, event, {tags: [event.type, 'event']});
+	        debug.info('app event: ' + event.type + ' - ' + eventLocal.code, event, {tags: [event.type, 'event']});
 	
 	        // page.activeComponent can be set to null in event handles
 	        activeComponent = page.activeComponent;
@@ -1452,7 +1452,8 @@
 	        }
 	
 	        //debug.event(event);
-	        debug.info('app event: ' + event.type, event, {tags: [event.type, 'event']});
+	        console.log(event);
+	        debug.info('app event: ' + event.type + ' - ' + event.key, event, {tags: [event.type, 'event']});
 	
 	        // current component handler
 	        if ( page.activeComponent && page.activeComponent !== page ) {
@@ -1486,6 +1487,15 @@
 	     *
 	     * @param {Event} event generated object with event data
 	     */
+	    contextmenu: function ( event ) {
+	        debug.info('app event: ' + event.type, event, {tags: [event.type, 'event']});
+	
+	        if ( false ) {
+	            // disable right click in release mode
+	            event.preventDefault();
+	        }
+	    },
+	
 	    /*contextmenu: function ( event ) {
 	     //var kbEvent = {}; //Object.create(document.createEvent('KeyboardEvent'));
 	
@@ -1918,7 +1928,7 @@
 	
 	    app.develop.wamp.onopen = function () {
 	        //app.develop.wamp.addListener(app.develop.wamp.EVENT_OPEN, function () {
-	        debug.info('wamp open ' + app.develop.wamp.socket.url, null, { tags: ['open', 'wamp'] });
+	        debug.info('wamp open ' + app.develop.wamp.socket.url, null, {tags: ['open', 'wamp']});
 	
 	        // get target connection id
 	        app.develop.wamp.call('getConnectionInfo', {}, function ( error, data ) {
@@ -4493,7 +4503,7 @@
 	        app.wamp.call('connect', {id: id, sdp: sdp}, function ( error, result ) {
 	            //console.log(error, result);
 	            if ( error ) {
-	                console.log('was not able to connect to ', id);
+	                console.log('%s: no connection', id);
 	            } else {
 	                //console.log('got answer');
 	                node.acceptAnswer(result);
