@@ -241,8 +241,8 @@ app.addListener('wamp:auth:error', function () {
 });
 
 
-window.serverAddressValue.innerText = 'wss.fortnotes.com';
-window.serverAddressValue.href = 'https://wss.fortnotes.com/';
+window.serverAddressValue.innerText = app.wssHost;
+window.serverAddressValue.href = 'https://' + app.wssHost;
 window.nodeIdValue.innerText = app.nodeId;
 window.nodeNameValue.innerText = app.nodeName;
 

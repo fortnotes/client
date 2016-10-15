@@ -76,6 +76,29 @@ if ( !app.nodeName ) {
     })();
 }
 
+app.wssHost = localStorage.getItem('wssHost');
+if ( !app.wssHost ) {
+    (function () {
+        localStorage.setItem('wssHost', app.wssHost = app.query.wampHost || location.hostname);
+    })();
+}
+
+app.wssPort = localStorage.getItem('wssPort');
+if ( !app.wssPort ) {
+    (function () {
+        localStorage.setItem('wssPort', app.wssPort = 9090);
+    })();
+}
+
+app.pass = localStorage.getItem('pass');
+if ( !app.pass ) {
+    (function () {
+        var pass = prompt('Please enter master password to store. DEVELOPMENT ONLY!') || 'qwerty';
+
+        localStorage.setItem('pass', app.pass = pass);
+    })();
+}
+
 //debug.info('nodeId: ' + app.nodeId);
 //debug.info('nodeName: ' + app.nodeName);
 //window.nodeId.innerHTML = '<b>server</b>: <a>wss.fortnotes.com</a> &nbsp; <b>node id</b>: ' + app.nodeId + ' &nbsp; <b>name</b>: ' + app.nodeName;
@@ -83,7 +106,7 @@ if ( !app.nodeName ) {
 
 var time = Date.now();
 app.wamp = new Wamp(
-    'ws://' + (app.query.wampHost || location.hostname) + ':8090/' +  app.nodeId
+    'ws://' + app.wssHost + ':' + app.wssPort + '/' +  app.nodeId
 );
 
 app.wamp.onopen = function () {
