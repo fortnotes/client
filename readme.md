@@ -8,6 +8,11 @@ FortNotes is a highly secure online private information manager based on the AES
 The current stable version - <https://bitbucket.org/DarkPark/fortnotes>
 
 
+Recommendation:
+
+Considering the importance of authentication I would recommend the following two block cipher modes for most use cases (except for disk encryption purposes): If the data is authenticated by an asymmetric signature use CBC, otherwise use GCM.
+
+
 ## Deployment ##
 
 Dependencies:
@@ -70,6 +75,14 @@ There are some stored parameters in the browser localStorage:
  config.pass.salt | random salt data for user password hashing (set on login)
  config.pass.hash | user password hashed with salt (set on login)
  config.sjcl      | encrypt/decrypt user-specific parameters (set on login)
+
+
+Events:
+
+wamp:open
+wamp:close
+crypto:open
+crypto:close
 
 
 The [code style](https://github.com/DarkPark/jscs) used for development.
