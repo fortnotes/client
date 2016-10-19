@@ -29,7 +29,7 @@
     },
     "devDependencies": {
         "eslint": "3.*.*",
-        "spa-eslint-config": "spasdk/eslint-config"
+        "spa-eslint-config": "1.*.*"
     },
     "keywords": [
         "aes",
