@@ -54,20 +54,18 @@ Crypto.prototype.setPass = function ( pass, done ) {
 
 
 Crypto.prototype.encrypt = function ( data, done ) {
-    var self = this,
+    var //self = this,
         time = Date.now(),
-        iv   = new Uint8Array(16);
-
-    crypto.getRandomValues(iv);
+        iv   = crypto.getRandomValues(new Uint8Array(12));
 
     crypto.subtle.encrypt({name: this.config.aesKey.name, iv: iv}, this.key, utf2buf(data))
         .then(function ( data ) {
             console.log('encrypt time: %sms', Date.now() - time);
 
             done(null, JSON.stringify({
-                ea: self.config.aesKey.name,
-                it: self.config.kdfKey.iterations,
-                ks: self.config.aesKey.length,
+                //ea: self.config.aesKey.name,
+                //it: self.config.kdfKey.iterations,
+                //ks: self.config.aesKey.length,
                 iv: buf2b64(iv),
                 em: buf2b64(new Uint8Array(data))
             }));

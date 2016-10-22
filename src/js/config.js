@@ -29,7 +29,7 @@ module.exports = {
         },
         // to deriveKey and encrypt/decrypt
         aesKey: {
-            name: 'AES-CBC',
+            name: 'AES-GCM',
             length: 256
         }
     }
