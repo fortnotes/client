@@ -106,8 +106,7 @@ if ( app.passSalt ) {
     (function () {
         var array = new Uint8Array(32);
 
-        window.crypto.getRandomValues(array);
-        app.passSalt = array;
+        app.passSalt = window.crypto.getRandomValues(array);
 
         localStorage.setItem('passSalt', encoding.bufferToBase64(array));
         //console.log('generate passSalt: ' + app.passSalt);
@@ -171,6 +170,42 @@ app.wamp.onclose = function () {
 
     console.log('%cwamp connection: close', 'color:red');
     debug.info('wamp close ' + app.wamp.socket.url, null, {tags: ['close', 'wamp']});
+};
+
+
+//indexedDB.deleteDatabase('storage');
+var request = indexedDB.open('storage', 1);
+
+request.onerror = function ( err ) {
+    console.log(err);
+};
+
+request.onsuccess = function ( event ) {
+    // При успешном открытии вызвали коллбэк передав ему объект БД
+    //f(request.result);
+    console.log('onsuccess', event);
+};
+
+request.onupgradeneeded = function ( event ) {
+    var db = event.currentTarget.result,
+        store;
+
+    console.log('onupgradeneeded', event);
+
+    store = db.createObjectStore('users', {keyPath: 'id', autoIncrement: true});
+    //store.createIndex('name', 'name', {unique: true});
+
+    store.add({
+        //id: 1,
+        name: 'John',
+        config: '{"iv":"cgRPb5PCq4fU+raa","em":"/os5WCmezVfOZWDS6GjgOH19zKrWh3zvEs39w6q7drGif6LuEGO9vmzcN9AgIAMTmuCs0PxS4sZ0+T2/d0w2X+UJgV4CRQGa70+z9e+T8a1TnjUsVBohYrOjnZenhbkcP6aep1b9BcT5jnhi9FLgUmyZBCvmoCkksNQ621FTda0nRbTA3tllEFKRtlXQ2KIJZcVXKF+zmquF/Dtm4ix3Q7fDCPzAOaR3zrwN8w=="}'
+    });
+    store.add({
+        //id: 1,
+        name: 'Anna',
+        config: '{"iv":"WCmezVfOZWDS6Gjg","em":"z9e+T8a1TnjUsVBohYrOjnZenhbkcP6aep1b9BcT5jnhi9FLgUmyZBCvmoCkksNQ621FTda0nRbTA3tllEFKRtlXQ2KIJZcVXKF+zmquF/Dtm4ix3Q7fDCPzAOaR3zrwN8w=="}'
+    });
+    // connectDB(f);
 };
 
 
