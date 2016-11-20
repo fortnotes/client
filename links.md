@@ -6,6 +6,7 @@ Useful resources
 * [specification](https://www.w3.org/TR/webrtc/)
 * [Real time communication with WebRTC](https://codelabs.developers.google.com/codelabs/webrtc-web/)
 * [How to use RTCDataChannel & RTCPeerConnection](https://www.webrtc-experiment.com/docs/how-to-use-rtcdatachannel-and-rtcpeerconnectionjs.html)
+* [Anatomy of a WebRTC SDP](https://webrtchacks.com/sdp-anatomy/)
 
 
 ## Web Cryptography API ##
