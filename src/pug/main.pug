@@ -1,0 +1,23 @@
+doctype html
+html
+    head
+        title=package.name
+        meta(charset="utf-8")
+        meta(name="description" content=package.description)
+        link(rel="icon" href="data:,")
+        link(rel="stylesheet" href="main.css")
+
+        //if develop
+        //    script(type="text/javascript", src="js/develop.js")
+        //    link(rel="stylesheet" href="css/develop.sdk.css")
+        //    link(rel="stylesheet" href="css/develop.app.css")
+        //else
+        //    script(type="text/javascript", src="js/release.js")
+        //    link(rel="stylesheet" href="css/release.sdk.css")
+        //    link(rel="stylesheet" href="css/release.app.css")
+
+    body
+        include ./pages/init.pug
+        include ./pages/main.pug
+
+        script(type="text/javascript", src="main.js")

@@ -1,38 +1,23 @@
 #pageInit {
-    & > table {
-        width: 100%;
-        height: 100%;
-    }
+    display: table;
 
-    .header, .footer {
-        height: 40px;
-        background-color: #FAFAFA;
-        padding: 0 $fontSize;
-        color: #06C;
-    }
-
-    .header {
-        font-size: 120%;
-    }
-
-    .body {
-        border: 1px solid #eee;
+    > .cell {
+        display: table-cell;
+        position: relative;
         text-align: center;
-        //margin-top  : unit(@fontSize * 2, px);
-        //line-height : unit(@height - (@availTop + @availBottom) - @fontSize * 4, px);
-        font-size: 160%;
-    }
+        vertical-align: middle;
+        font-size: 150%;
 
-    .footer {
-        //padding: unit(@fontSize, px);
-        //line-height   : unit(@fontSize * 2, px);
-        text-align: right;
-        color: black;
-        //font-size     : 80%;
-        //color: #aaa;
-        //.value {
-        //    color: black;
-        //    //padding-left: $fontSize/2;
-        //}
+        > .version {
+            position: absolute;
+            bottom: 50px;
+            right: 50px;
+            font-size: 50%;
+            //color: #555;
+
+            > .value {
+                //color: #fff;
+            }
+        }
     }
 }

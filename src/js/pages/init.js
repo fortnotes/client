@@ -5,7 +5,7 @@
 'use strict';
 
 var Page = require('spa-component-page'),
-    page = new Page({$node: window.pageInit});
+    page = new Page({$node: document.getElementById('pageInit')});
 
 
 // public

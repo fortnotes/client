@@ -1,7 +1,7 @@
 {
     "name": "fortnotes-client",
     "version": "2.0.0",
-    "description": "FortNotes browser client.",
+    "description": "FortNotes web application",
     "author": {
         "name": "Stanislav Kalashnik",
         "email": "darkpark.main@gmail.com"
@@ -12,24 +12,28 @@
         "url": "https://github.com/fortnotes/client.git"
     },
     "scripts": {
-        "start": "spasdk",
-        "build": "spasdk build",
-        "watch": "spasdk watch",
-        "serve": "spasdk serve",
-        "lint": "eslint .",
+        "develop": "runner -c tasks/develop.js",
+        "release": "runner -c tasks/release.js",
+        "lint": "eslint src/js",
         "test": "npm run lint"
     },
     "dependencies": {
-        "spa-app": "spasdk/app",
-        "spa-component-button": "spasdk/component-button",
-        "spa-component-list": "spasdk/component-list",
-        "spa-component-page": "spasdk/component-page",
-        "spa-keys": "spasdk/keys",
-        "spa-wamp": "spasdk/wamp"
+        "spa-app": "1.*.*",
+        "spa-component": "1.*.*",
+        "spa-component-button": "1.*.*",
+        "spa-component-list": "1.*.*",
+        "spa-component-modal": "1.*.*",
+        "spa-component-page": "1.*.*",
+        "spa-dom": "1.*.*",
+        "spa-gettext": "1.*.*",
+        "spa-wamp": "1.*.*",
+        "xml-js": "^1.6.2"
     },
     "devDependencies": {
-        "eslint": "3.*.*",
-        "spa-eslint-config": "1.*.*"
+        "eslint": "4.*.*",
+        "spa-eslint-config": "1.*.*",
+        "spa-tasks": "1.*.*",
+        "node-runner": "1.*.*"
     },
     "keywords": [
         "aes",

@@ -1,0 +1,32 @@
+<svg class="init-logo">
+    <style>
+        .svg-stroke-a {
+            stroke: #888;
+        }
+        .svg-fill-a {
+            fill: #888;
+        }
+
+        .svg-stroke-b {
+            stroke: #ccc;
+        }
+        .svg-fill-b {
+            fill: #ccc;
+        }
+    </style>
+
+    <!-- main logo -->
+    <symbol src="logo.svg"/>
+
+    <!-- display logo immediately -->
+    <use xlink:href="#svg-logo"/>
+
+    <!-- all other images -->
+    <symbol src="blank.svg"/>
+    <symbol src="key.svg"/>
+    <symbol src="user.svg"/>
+    <symbol src="device.svg"/>
+    <symbol src="user-add.svg"/>
+    <symbol src="user-switch.svg"/>
+    <symbol src="user-unlock.svg"/>
+</svg>

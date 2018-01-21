@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg version="1.1"
+     baseProfile="full"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns:ev="http://www.w3.org/2001/xml-events"
+     width="100%" height="100%"
+     id="svg-logo"
+     viewBox="0 0 58 58">
+     
+	<path style="fill:#556080;" d="M54.944,3H5.056C3.368,3,2,4.368,2,6.056V14h5.513C8.334,14,9,14.666,9,15.487v9.027 C9,25.334,8.334,26,7.513,26H2v6h5.513C8.334,32,9,32.666,9,33.487v9.027C9,43.334,8.334,44,7.513,44H2v7.944 C2,53.632,3.368,55,5.056,55h49.888C56.632,55,58,53.632,58,51.944V6.056C58,4.368,56.632,3,54.944,3z"/>
+	<path style="fill:#8697CB;" d="M53,8H7v6h0c1.105,0,2,0.895,2,2v8c0,1.105-0.895,2-2,2h0v6h0c1.105,0,2,0.895,2,2v8 c0,1.105-0.895,2-2,2h0v6l0,0h46V8z"/>
+	<path style="fill:#ECF0F1;" d="M7.513,26H1.487C0.666,26,0,25.334,0,24.513v-9.027C0,14.666,0.666,14,1.487,14h6.027 C8.334,14,9,14.666,9,15.487v9.027C9,25.334,8.334,26,7.513,26z"/>
+	<path style="fill:#ECF0F1;" d="M7.513,44H1.487C0.666,44,0,43.334,0,42.513v-9.027C0,32.666,0.666,32,1.487,32h6.027 C8.334,32,9,32.666,9,33.487v9.027C9,43.334,8.334,44,7.513,44z"/>
+	<circle style="fill:#BDC3C7;stroke:#ECF0F1;stroke-width:2;stroke-miterlimit:10;" cx="26" cy="29" r="11"/>
+	<path style="fill:#FFFFFF;stroke:#FFFFFF;stroke-width:2;stroke-miterlimit:10;" d="M26,33c-2.206,0-4-1.794-4-4s1.794-4,4-4 s4,1.794,4,4S28.206,33,26,33z"/>
+	<path style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" d="M49,41h-2.5h0 c-1.381,0-2.5-1.119-2.5-2.5v-19c0-1.381,1.119-2.5,2.5-2.5h0H49"/>
+	<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="26" y1="18" x2="26" y2="21"/>
+	<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="26" y1="37" x2="26" y2="40"/>
+	<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="37" y1="29" x2="34" y2="29"/>
+	<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="18" y1="29" x2="15" y2="29"/>
+	<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="18.222" y1="21.222" x2="20.343" y2="23.343"/>
+	<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="31.657" y1="34.657" x2="33.778" y2="36.778"/>
+	<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="33.778" y1="21.222" x2="31.657" y2="23.343"/>
+	<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="20.343" y1="34.657" x2="18.222" y2="36.778"/>
+	<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="48" y1="20" x2="48" y2="38"/>
+</svg>
