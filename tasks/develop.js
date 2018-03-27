@@ -137,7 +137,7 @@ runner.task('svg:build', function () {
     fs.writeFileSync(path.join(target, 'images.svg'), xmljs.js2xml(data, {spaces: 4}));
 });
 
-runner.task('build', runner.serial('pug:build', 'sass:build', 'webpack:build'));
+runner.task('build', runner.serial('svg:build', 'sass:build', 'webpack:build', 'pug:build'));
 
 // eslint-disable-next-line no-unused-vars
 runner.task('watch', function ( done ) {
