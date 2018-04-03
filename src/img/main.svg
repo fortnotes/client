@@ -24,6 +24,9 @@
     <!-- all other images -->
     <symbol src="blank.svg"/>
     <symbol src="key.svg"/>
+    <symbol src="profile.svg"/>
+    <symbol src="profile-add.svg"/>
+    <symbol src="profile-switch.svg"/>
     <symbol src="user.svg"/>
     <symbol src="device.svg"/>
     <symbol src="user-add.svg"/>
