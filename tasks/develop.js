@@ -107,11 +107,12 @@ runner.task('svg:build', function () {
             {compact: false, trim: true, nativeType: true, ignoreComment: true, ignoreDoctype: true, ignoreDeclaration: true}
         ).elements[0];
 
-        delete element.attributes.src;
 
-        element.attributes.id      = data.attributes.id;
+        element.attributes.id      = 'svg-' + path.basename(element.attributes.src, '.svg');
         element.attributes.viewBox = data.attributes.viewBox;
         element.elements = data.elements;
+
+        delete element.attributes.src;
         //console.log(util.inspect(data, {colors: true, depth: 6}));
     }
 
