@@ -12,28 +12,33 @@
         "url": "https://github.com/fortnotes/client.git"
     },
     "scripts": {
+        "jsdoc": "jsdoc --destination docs src/js/lib/*.js readme.md",
         "develop": "runner -c tasks/develop.js",
         "release": "runner -c tasks/release.js",
         "lint": "eslint src/js",
         "test": "npm run lint"
     },
     "dependencies": {
-        "spa-app": "1.*.*",
-        "spa-component": "1.*.*",
-        "spa-component-button": "1.*.*",
-        "spa-component-list": "1.*.*",
-        "spa-component-modal": "1.*.*",
-        "spa-component-page": "1.*.*",
-        "spa-dom": "1.*.*",
-        "spa-gettext": "1.*.*",
-        "spa-wamp": "1.*.*",
-        "xml-js": "^1.6.2"
+        "cjs-emitter": "^1.5.1",
+        "cjs-query": "^1.4.0",
+        "spa-app": "^1.5.0",
+        "spa-component": "^1.4.0",
+        "spa-component-button": "^1.0.0",
+        "spa-component-list": "^1.0.1",
+        "spa-component-modal": "^1.0.0",
+        "spa-component-page": "^1.4.0",
+        "spa-component-tab": "^1.0.0",
+        "spa-dom": "^1.4.0",
+        "spa-gettext": "^1.4.0",
+        "spa-wamp": "^1.0.0"
     },
     "devDependencies": {
-        "eslint": "4.*.*",
-        "spa-eslint-config": "1.*.*",
-        "spa-tasks": "1.*.*",
-        "node-runner": "1.*.*"
+        "eslint": "^4.19.1",
+        "jsdoc": "^3.5.5",
+        "node-runner": "^1.0.2",
+        "spa-eslint-config": "^1.0.1",
+        "spa-tasks": "^1.1.0",
+        "xml-js": "^1.6.2"
     },
     "keywords": [
         "aes",
