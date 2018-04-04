@@ -88,54 +88,16 @@ tasks.webpack({
     ]
 });
 
+require('./svg')({
+    source: path.join(source, 'img', 'main.svg'),
+    target: path.join(target, 'images.svg'),
+    spaces: 4
+});
 
 runner.task('init', function ( done ) {
     tools.mkdir([target], runner.log.wrap('init'), function ( error ) {
         done(error);
     });
-});
-
-runner.task('svg:build', function () {
-    var fs    = require('fs'),
-        util  = require('util'),
-        xmljs = require('xml-js'),
-        root, data;
-
-    function load ( element ) {
-        var data = xmljs.xml2js(
-            fs.readFileSync(path.join(source, 'img', element.attributes.src)).toString(),
-            {compact: false, trim: true, nativeType: true, ignoreComment: true, ignoreDoctype: true, ignoreDeclaration: true}
-        ).elements[0];
-
-
-        element.attributes.id      = 'svg-' + path.basename(element.attributes.src, '.svg');
-        element.attributes.viewBox = data.attributes.viewBox;
-        element.elements = data.elements;
-
-        delete element.attributes.src;
-        //console.log(util.inspect(data, {colors: true, depth: 6}));
-    }
-
-    data = xmljs.xml2js(
-        fs.readFileSync(path.join(source, 'img', 'main.svg')).toString(),
-        {compact: false, trim: true, nativeType: true, ignoreComment: true, ignoreDoctype: true, ignoreDeclaration: true}
-    );
-
-    root = data.elements[0];
-    //console.log(util.inspect(root, {colors: true, depth: 6}));
-
-    root.elements.forEach(function ( element ) {
-        if ( element.name === 'style' ) {
-            element.elements[0].text = element.elements[0].text.replace(/\s/g, '');
-        }
-        // symbol without content
-        if ( element.name === 'symbol' && !element.elements && element.attributes.src ) {
-            load(element);
-        }
-    });
-
-    //console.log(xmljs.js2xml(data, {spaces: 4}));
-    fs.writeFileSync(path.join(target, 'images.svg'), xmljs.js2xml(data, {spaces: 4}));
 });
 
 runner.task('build', runner.serial('svg:build', 'sass:build', 'webpack:build', 'pug:build'));
