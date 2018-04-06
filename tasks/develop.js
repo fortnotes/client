@@ -89,7 +89,7 @@ tasks.webpack({
 });
 
 require('./svg')({
-    source: path.join(source, 'img', 'main.svg'),
+    source: path.join(source, 'img', 'svg.xml'),
     target: path.join(target, 'images.svg'),
     spaces: 4
 });
