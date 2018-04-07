@@ -9,43 +9,13 @@ var fs     = require('fs'),
     path   = require('path'),
     runner = require('node-runner'),
     tools  = require('node-runner/lib/tools'),
-    xmljs  = require('xml-js'),
     name   = 'svg',
     log    = runner.log.wrap(name);
 
 
-function importFile ( element, data ) {
-    // add content
-    element.elements = [{type: 'text', text: data.replace(/\s/g, '')}];
-
-    // clear
-    delete element.attributes.src;
-}
-
-
-function importSymbol ( element, data ) {
-    // extract content
-    data = xmljs.xml2js(data, {
-        compact: false,
-        trim: true,
-        nativeType: true,
-        ignoreComment: true,
-        ignoreDoctype: true,
-        ignoreDeclaration: true
-    }).elements[0];
-
-    // add content
-    element.attributes.id = 'svg-' + path.basename(element.attributes.src, '.svg');
-    element.attributes.viewBox = data.attributes.viewBox;
-    element.elements = data.elements;
-
-    // clear
-    delete element.attributes.src;
-}
-
-
 function build ( config, done ) {
     var //util = require('util'),
+        xmljs = require('xml-js'),
         root, data;
 
     data = xmljs.xml2js(
@@ -65,10 +35,27 @@ function build ( config, done ) {
             data = fs.readFileSync(path.join(config.path, element.attributes.src)).toString();
 
             if ( element.name === 'symbol' ) {
-                importSymbol(element, data);
+                // extract content
+                data = xmljs.xml2js(data, {
+                    compact: false,
+                    trim: true,
+                    nativeType: true,
+                    ignoreComment: true,
+                    ignoreDoctype: true,
+                    ignoreDeclaration: true
+                }).elements[0];
+
+                // inject content
+                element.attributes.id = config.prefix + path.basename(element.attributes.src, '.svg');
+                element.attributes.viewBox = data.attributes.viewBox;
+                element.elements = data.elements;
             } else {
-                importFile(element, data);
+                // inject content
+                element.elements = [{type: 'text', text: data.replace(/\s/g, '')}];
             }
+
+            // clear
+            delete element.attributes.src;
         }
     });
 
@@ -81,7 +68,8 @@ function build ( config, done ) {
 function generator ( config, options ) {
     // sanitize
     config = Object.assign({
-        path: path.dirname(config.source || '')
+        path: path.dirname(config.source || ''),
+        prefix: 'svg-'
     }, config || {});
     options = Object.assign(generator.options, options || {});
 
