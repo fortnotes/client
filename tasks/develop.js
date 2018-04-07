@@ -89,7 +89,7 @@ tasks.webpack({
 });
 
 require('./svg')({
-    source: path.join(source, 'img', 'svg.xml'),
+    source: path.join(source, 'svg', 'template.xml'),
     target: path.join(target, 'images.svg'),
     spaces: 4
 });
@@ -112,7 +112,7 @@ runner.task('watch', function ( done ) {
         //path.join(target, 'main.js')
     ], 'pug:build');
     runner.watch(path.join(source, 'sass', '**', '*.scss'), 'sass:build');
-    runner.watch(path.join(source, 'img', '**', '*.svg'), 'svg:build');
+    runner.watch(path.join(source, 'svg', '**', '*'), 'svg:build');
     runner.run('eslint:watch');
     runner.run('webpack:watch');
     //runner.run('livereload:watch');
