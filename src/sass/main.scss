@@ -1,3 +1,79 @@
-// pages
-@import "pages/init";
-@import "pages/main";
+@import "blocks/button";
+@import "blocks/dialog";
+@import "blocks/header";
+@import "blocks/icon";
+@import "blocks/list";
+@import "blocks/menu";
+@import "blocks/page";
+@import "blocks/tab";
+
+.user-list__group--user {
+    padding-left: 0;
+    background: none;
+}
+
+html, body {
+    //height: 100%;;
+    //width: 100%;;
+    font: $font;
+    color: $colorTextMain;
+    //margin: 0;
+    //padding: 0;
+}
+
+// table cell spacing/padding reset
+table {
+    border: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    td {
+        padding: 0;
+    }
+}
+
+a {
+    color: $colorButton;
+    text-decoration: none;
+    border-bottom: 1px dashed $colorButton;
+}
+
+::placeholder {
+    color: $colorTextHint;
+}
+
+.develop-focused {
+    outline: 1px dashed red;
+    outline-offset: -1px;
+}
+
+.loading {
+    background-color: aliceblue;
+}
+
+
+.svg-fill-a {
+    //stroke: orange;
+    //fill: red;
+}
+.svg-stroke-a {
+    //stroke: $colorTextMain;
+    //stroke: red;
+}
+
+.svg-stroke-b {
+    //stroke: $colorTextHint;
+    //stroke: red;
+}
+
+#svg-logo {
+    //stroke: orange;
+    //fill: red;
+}
+
+//.svg-bg {
+//    fill: red;
+//}
+
+//.hidden {
+//    display: none;
+//}

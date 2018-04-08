@@ -1,0 +1,46 @@
+.menu {
+    display: none;
+
+    @media (min-width: 750px) {
+        display: inline-block;
+    }
+
+    &__item {
+        border-bottom: 1px solid transparent;
+        cursor: pointer;
+        display: inline-block;
+        //line-height: 45px;
+        height: $headerHeight;
+        line-height: $headerHeight + 1;
+        padding: 0 $paddingLarge;
+
+        &--focused {
+            //font-weight: bold;
+            background-color: $colorBackgroundMain;
+            border-bottom: 1px solid $colorButton;
+            color: $colorButton;
+        }
+
+        &:hover {
+            background-color: $colorBackgroundMain;
+            border-bottom: 1px solid $colorBorder;
+        }
+    }
+
+    &--focused {
+        //.menu__item {
+        //    &--focused {
+        //        outline: 1px solid $colorButton;
+        //        outline-offset: -1px;
+        //    }
+        //}
+    }
+
+    &--disabled {
+        background-color: #ddd;
+    }
+
+    &--hidden {
+        display: none;
+    }
+}

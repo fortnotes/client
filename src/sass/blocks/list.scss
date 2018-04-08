@@ -1,0 +1,55 @@
+.list {
+    border: 1px solid $colorBorder;
+
+    &__item {
+        //border-bottom: 1px solid $colorBorder;
+        padding: $paddingNormal;
+
+        &:nth-child(even) {
+            background-color: $colorBackgroundShade;
+        }
+
+        &--focused {
+            background-color: $colorBorder;
+            //color: $colorBackgroundMain;
+            color: $colorTextMain;
+            //outline: 1px solid $colorButton;
+            //outline-offset: -1px;
+
+            &:hover {
+                background-color: $colorBorder;
+            }
+
+            &:nth-child(even) {
+                background-color: $colorBorder;
+            }
+        }
+
+        &:last-of-type {
+            border-bottom: none;
+        }
+
+        &:hover {
+            //background-color: $colorBackgroundShade;
+            background-color: $colorBorder;
+        }
+    }
+
+    &--focused {
+        border: 1px solid $colorButton;
+
+        .list__item {
+            &--focused {
+                background-color: $colorButton;
+                color: $colorBackgroundMain;
+            }
+        }
+    }
+
+    //&--user-list {
+    //    .list__item {
+    //        background: $colorBackgroundShade url("https://cdn1.iconfinder.com/data/icons/flat-business-icons/128/user-20.png") no-repeat $paddingSmall center;
+    //        padding-left: $iconSizeSmall + $paddingLarge;
+    //    }
+    //}
+}

@@ -1,0 +1,16 @@
+.icon {
+    &--small {
+        height: $iconSizeSmall;
+        width: $iconSizeSmall;
+    }
+
+    &--normal {
+        height: $iconSizeNormal;
+        width: $iconSizeNormal;
+    }
+
+    &--large {
+        height: $iconSizeLarge;
+        width: $iconSizeLarge;
+    }
+}

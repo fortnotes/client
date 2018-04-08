@@ -1,0 +1,168 @@
+.dialog {
+    padding: $paddingNormal * 2;
+
+    /*@media (min-width: $mediaNormal) and (min-height: $mediaNormal) {
+        width: 550px;
+    }*/
+
+    &__title {
+        font-weight: bold;
+        text-align: center;
+        font-size: 120%;
+
+        @media (min-width: $mediaSmall) {
+            //background: url("https://cdn2.iconfinder.com/data/icons/bitsies/128/Info-32.png") no-repeat 0 top;
+            //background: url("https://cdn1.iconfinder.com/data/icons/hawcons/32/699015-icon-29-information-48.png") no-repeat 0 top;
+            padding-bottom: $paddingNormal * 2;
+        }
+
+        &--unlock {
+            //background: url("img/user.unlock.png") no-repeat center top;
+        }
+
+        &--create {
+            //background: url("img/user.create.png") no-repeat center top;
+        }
+
+        &--switch {
+            //background: url("img/user.switch.png") no-repeat center top;
+        }
+
+        &--feedback {
+            background: url("img/report.feedback2.png") no-repeat center top;
+        }
+
+        &--error {
+            background: url("img/report.error2.png") no-repeat center top;
+        }
+
+        //padding-top: $iconSizeNormal * 4 + $paddingNormal * 2;
+        padding-bottom: $paddingNormal * 2;
+    }
+
+    &__logo {
+        display: block;
+        width: 100%;
+        height: 128px;
+        padding-bottom: $paddingNormal * 2;
+    }
+
+    &__info {
+        padding-bottom: $paddingNormal * 2;
+    }
+
+    &__entries {
+        padding: $paddingNormal * 2 0;
+        border-top: 1px dashed $colorBorder;
+        border-bottom: 1px dashed $colorBorder;
+    }
+
+    &__entry {
+        padding-bottom: $paddingNormal * 2;
+        display: table;
+        width: 100%;
+
+        @media (min-width: $mediaSmall) {
+            //padding-left: $iconSizeLarge + $paddingNormal;
+
+            //&--user {
+            //    background: url("https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-48.png") no-repeat 0 top;
+            //    background: url("https://cdn1.iconfinder.com/data/icons/hawcons/32/699738-icon-63-face-glasses-48.png") no-repeat 0 top;
+            //}
+
+            &--user-list {
+                padding-left: 0;
+                //background: url("https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-48.png") no-repeat 0 top;
+                //background: url("https://cdn1.iconfinder.com/data/icons/hawcons/32/699738-icon-63-face-glasses-48.png") no-repeat 0 top;
+            }
+
+            &--email {
+                background: url("https://cdn1.iconfinder.com/data/icons/hawcons/32/698362-icon-2-mail-envelope-open-48.png") no-repeat 0 top;
+            }
+
+            &--text {
+                background: url("https://cdn1.iconfinder.com/data/icons/hawcons/32/699032-icon-44-note-text-48.png") no-repeat 0 top;
+            }
+
+            //&--device {
+            //    //background: url("../img/device.svg") no-repeat 0 top;
+            //    //background-size: 48px;
+            //    background: url("https://cdn2.iconfinder.com/data/icons/circle-icons-1/64/tablet-48.png") no-repeat 0 top;
+            //    background: url("https://cdn1.iconfinder.com/data/icons/hawcons/32/698970-icon-124-printer-text-48.png") no-repeat 0 top;
+            //}
+
+            //&--password {
+            //    background: url("https://cdn1.iconfinder.com/data/icons/hawcons/32/698967-icon-121-combination-lock-48.png") no-repeat 0 top;
+            //}
+        }
+
+        &:last-of-type {
+            padding-bottom: 0;
+        }
+    }
+
+    &__icon {
+        //background-color: red;
+        display: table-cell;
+        width: $iconSizeLarge + $paddingNormal;
+        vertical-align: top;
+    }
+
+    &__body {
+        //background-color: green;
+        display: table-cell;
+    }
+
+    &__name {
+        font-weight: bold;
+        padding-bottom: $paddingSmall;
+    }
+
+    &__error {
+        color: $colorTextError;
+        padding-bottom: $paddingSmall;
+    }
+
+    &__input, &__textarea {
+        border: 1px solid $colorBorder;
+        font-size: inherit;
+        padding: 0 $paddingNormal;
+        //margin: $paddingSmall 0;
+        line-height: $inputHeight;
+        //height: $inputHeight;
+        width: 100%;
+        border-radius: $borderRadius;
+        box-sizing: border-box;
+        color: $colorButton;
+
+        &:focus {
+            border: 1px solid $colorButton;
+            outline: none;
+            //outline: 1px solid $colorButton;
+            //outline-offset: -1px;
+        }
+    }
+
+    &__textarea {
+        height: $paddingLarge * 8;
+    }
+
+    &__hint {
+        color: $colorTextHint;
+        padding-top: $paddingSmall;
+
+        &:not(:last-child) {
+            padding-bottom: $paddingSmall * 2;
+        }
+    }
+
+    &__errors {
+        color: $colorTextError;
+    }
+
+    &__buttons {
+        padding-top: $paddingNormal * 2;
+        //padding-bottom: $paddingNormal;
+        text-align: center;
+    }
+}

@@ -1,0 +1,78 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    //position: absolute;
+
+    /*height: 100%;
+    position: absolute;
+    width: 100%;
+    display: flex;
+    flex-direction: column;*/
+
+    &--hidden {
+        //visibility: hidden;
+        display: none;
+    }
+
+    &__header, &__footer {
+        background-color: $colorBackgroundShade;
+        //height: $headerHeight;
+    }
+
+    &__header {
+        height: $headerHeight;
+        border-bottom: 1px solid $colorBorder;
+        //display: flex;
+        flex: none;
+        //flex-flow: row nowrap;
+        //justify-content: space-between;
+        padding: 0 $paddingNormal;
+        //display: table;
+        //width: 100%;
+        // @media (min-width: $mediaSmall) {
+        //     background: $colorBackgroundShade url("https://images.filehippo.net/img/ex/1308__msseces.png") no-repeat $paddingLarge center;
+        //     background: $colorBackgroundShade url("https://cdn0.iconfinder.com/data/icons/security-double-colour-blue-black-vol-2/52/hosting__security__service__web-32.png") no-repeat $paddingLarge center;
+        //     background: $colorBackgroundShade url("https://cdn0.iconfinder.com/data/icons/security-double-colour-blue-black-vol-3/52/protection__safety__security__shield-32.png") no-repeat $paddingLarge center;
+        //     padding-left: 65px;
+        // }
+    }
+
+    //&__title {
+    //    //height: $headerHeight;
+    //    //line-height: $headerHeight;
+    //    font-size: 110%;
+    //    font-weight: bold;
+    //    //padding: $paddingNormal;
+    //}
+
+    &__body {
+        display: flex;
+        flex: 1 0 auto;
+
+        /*flex-grow: 1;
+        border-top: 1px solid $colorBorder;
+        border-bottom: 1px solid $colorBorder;
+        overflow-y: auto;*/
+
+        &--centered {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+
+    &__footer {
+        flex-shrink: 0;
+        border-top: 1px solid $colorBorder;
+        text-align: center;
+
+        /*display: flex;
+        justify-content: center;
+        align-items: center;*/
+        font-size: 90%;
+        padding: $paddingNormal;
+        //height: 40px;
+    }
+}

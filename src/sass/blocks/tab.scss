@@ -1,0 +1,65 @@
+.tab {
+    &--create, &--switch, &--unlock {
+        @media (min-width: $mediaNormal) and (min-height: $mediaNormal) {
+            //display: flex;
+            //justify-content: center;
+            //align-items: center;
+        }
+
+        @media (min-width: $mediaNormal) {
+            width: $mediaNormal;
+        }
+    }
+
+
+    //height:   100%;
+    //position: absolute;
+    width:    100%;
+    box-sizing: border-box;
+    //background-color: rgba(0,0,255,0.02);
+
+    &--home {
+        display: flex;
+        //align-content: stretch;
+    }
+
+    &--hidden {
+        //visibility: hidden;
+        display: none;
+    }
+
+    &__column {
+        &--tags {
+            background-color: rgba(255, 0, 0, 0.02);
+            flex-grow: 2;
+        }
+
+        &--notes {
+            background-color: rgba(0, 255, 0, 0.02);
+            border-left: 1px solid $colorBorder;
+            border-right: 1px solid $colorBorder;
+            flex-grow: 3;
+        }
+
+        &--note {
+            background-color: rgba(0, 0, 255, 0.02);
+            flex-grow: 2;
+        }
+
+        @media (max-width: $mediaNormal * 2) {
+            display: none;
+        }
+
+        &--active {
+            display: block;
+        }
+    }
+
+    &--notes {
+        //background-color: beige;
+    }
+
+    &--contacts {
+        //background-color: lavender;
+    }
+}

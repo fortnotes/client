@@ -1,0 +1,43 @@
+.button {
+    @media (min-width: $mediaSmall) {
+        display: inline-block;
+        margin-right: $paddingNormal;
+    }
+
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: $colorBackgroundShade;
+    color: $colorButton;
+    border: 1px solid $colorBorder;
+    //font-weight: bold;
+    border-radius: $borderRadius;
+    padding: 0 $paddingNormal * 2;
+    line-height: $inputHeight;
+    //height: $inputHeight;
+    //margin: 0 0 $paddingNormal 0;
+
+    &--hidden {
+        display: none;
+    }
+
+    &--focused {
+        background-color: $colorButton;
+        color: $colorBackgroundMain;
+    }
+
+    &--primary {
+        font-weight: bold;
+        //border: 1px solid $colorButton;
+        //background-color: $colorButton;
+        //color: $colorBackgroundMain;
+    }
+
+    &:last-of-type {
+        margin-right: 0;
+        //margin-bottom: 0;
+    }
+
+    &:hover, &.focus {
+        //background-color: $colorButtonHover;
+    }
+}

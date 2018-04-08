@@ -1,0 +1,57 @@
+.header {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+
+    &__logo {
+        height: $headerHeight;
+        align-items: center;
+        flex-flow: row nowrap;
+        display: flex;
+
+        //padding: 0 $paddingNormal 0 $iconSizeNormal + $paddingNormal;
+        //background: url("../img/logo.png") no-repeat left center;
+
+        font-size: 140%;
+    }
+
+    &__icon {
+        width: 32px;
+        height: 32px;
+    }
+    &__logo-a {
+        display: inline-block;
+        margin-left: $paddingNormal;
+        //height: $headerHeight;
+        //line-height: $headerHeight;
+    }
+
+    &__logo-b {
+        display: inline-block;
+        font-weight: bold;
+        margin-right: $paddingNormal;
+        //height: $headerHeight;
+        //line-height: $headerHeight;
+    }
+
+    &__menu {
+        //background: url("img/menu.png") no-repeat center;
+        float: right;
+        //height: $headerHeight;
+        //width: $headerHeight;
+        display: inline-block;
+        cursor: pointer;
+
+        @media (min-width: 750px) {
+            display: none;
+        }
+    }
+
+    &__user {
+        height: $headerHeight;
+        line-height: $headerHeight;
+        //background: $colorBackgroundShade url("img/user.svg") no-repeat right center;
+        background-size: 32px;
+        padding: 0 $iconSizeNormal + $paddingNormal 0 $paddingNormal;
+    }
+}
