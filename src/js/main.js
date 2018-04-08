@@ -4,24 +4,68 @@
 
 'use strict';
 
-var app = require('spa-app');
+var app     = require('spa-app'),
+    gettext = require('spa-gettext'),
+    parse   = require('cjs-query').parse;
 
 
-// DOM is ready
-app.once('dom', function () {
-    // load pages
-    app.pages = {
-        init: require('./pages/init'),
-        main: require('./pages/main')
+// setup environment
+app.language = localStorage.getItem('language') || 'en';
+
+// url request params
+app.query = parse(document.location.search.substring(1));
+
+app.users = [];
+
+// load localization
+gettext.load({name: app.language}, function () {
+    // load all pages
+    var pages = app.pages = {
+        profile: require('./pages/profile/'),
+        user:    require('./pages/user'),
+        main:    require('./pages/main'),
+        report:  require('./pages/report')
     };
 
-    // show splash screen
-    app.route(app.pages.init);
-});
+    pages.profile.addListeners({
+        switch: function () {
+            // a profile should be selected
+            pages.profile.show();
+        },
+        ready: function ( profile ) {
+            // profile is loaded
+            app.profile = profile;
+            // navigate
+            pages.user.show();
+        }
+    });
 
+    pages.user.addListeners({
+        ready: function () {
+            // fill main page
+            pages.main.init(function () {
+                // navigate
+                pages.main.show();
+            });
+        }
+    });
 
-// everything is ready
-app.once('load', function () {
-    // show main page
-    app.route(app.pages.main);
+    // add to DOM
+    document.body.appendChild(pages.profile.$node);
+    document.body.appendChild(pages.user.$node);
+    document.body.appendChild(pages.main.$node);
+    document.body.appendChild(pages.report.$node);
+
+    // global events
+    app.addListeners({
+        // show send error report page
+        error: function ( data ) {
+            console.log('app:error', data);
+            pages.report.show(data);
+        }
+    });
+
+    pages.profile.init();
+
+    document.body.classList.remove('loading');
 });

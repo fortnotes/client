@@ -72,6 +72,7 @@ tasks.webpack({
         sourceMapFilename: 'main.js.map'
     },
     resolve: {
+        mainFiles: ['index', 'main'],
         alias: {
             'app:config': path.resolve(path.join(source, 'js', 'config.js'))
         }
