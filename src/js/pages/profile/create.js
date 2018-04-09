@@ -41,14 +41,15 @@ buttons = {
             click: function () {
                 var valid = true;
 
-                event.preventDefault();
-
                 if ( !inputs.$name.value ) {
                     errors.$name.textContent = _('this field can not be empty');
                     valid = false;
                 }
 
                 if ( valid ) {
+                    // prevent focusing
+                    event.preventDefault();
+
                     // send result
                     tab.emit('create', {
                         name: inputs.$name.value,
@@ -93,7 +94,7 @@ tab.$node.appendChild(
         ),
         tag('div', {className: 'dialog__info'},
             // eslint-disable-next-line max-len
-            _('Your profile will contain all your information - your notes, tags, contacts, messages, logs and settings.')
+            _('Your profile will contain all your information: your notes, tags, contacts, messages, logs and settings.')
         ),
         tag('div', {className: 'dialog__entries'},
             // name

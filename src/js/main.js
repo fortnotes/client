@@ -22,7 +22,7 @@ gettext.load({name: app.language}, function () {
     // load all pages
     var pages = app.pages = {
         profile: require('./pages/profile/'),
-        user:    require('./pages/user'),
+        user:    require('./pages/user/'),
         main:    require('./pages/main'),
         report:  require('./pages/report')
     };
