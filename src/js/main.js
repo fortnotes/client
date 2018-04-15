@@ -36,7 +36,7 @@ gettext.load({name: app.language}, function () {
             // profile is loaded
             app.profile = profile;
             // navigate
-            pages.user.show();
+            pages.user.show(profile);
         }
     });
 

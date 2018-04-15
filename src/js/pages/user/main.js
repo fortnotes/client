@@ -15,8 +15,15 @@ page = new Page({
     modifiers: ['user'],
     hidden: true,
     events: {
-        show: function () {
-            tabs.create.show();
+        show: function ( profile ) {
+            page.profile = profile;
+
+            // check if user exists
+            if ( profile.options && profile.options.userId ) {
+                tabs.unlock.show();
+            } else {
+                tabs.create.show();
+            }
         }
     }
 });
@@ -35,11 +42,13 @@ tabs.create.addListeners({
         localStorage.removeItem('profileId');
         location.reload();
     },
-    create: function ( event ) {
-        // ready to show main page
-        //page.emit('ready');
-        console.log(event);
-        tabs.create.hide();
+    create: function ( data ) {
+        page.profile.addUser(data, function ( error ) {
+            error && console.error(error);
+
+            //tabs.create.hide();
+            location.reload();
+        });
     }
 });
 
@@ -53,9 +62,13 @@ tabs.unlock.addListeners({
         localStorage.removeItem('profileId');
         location.reload();
     },
-    unlock: function () {
-        // ready to show main page
-        page.emit('ready');
+    unlock: function ( data ) {
+        page.profile.unlockUser(data.pass, function ( error ) {
+            error && console.error(error);
+
+            console.log('ok');
+            page.emit('ready');
+        });
     }
 });
 
